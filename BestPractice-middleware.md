@@ -3,12 +3,10 @@
 ## 目录
 - [中间件设计原则](#中间件设计原则)
 - [错误处理中间件](#错误处理中间件)
-- [请求拦截中间件](#请求拦截中间件)
 - [缓存中间件](#缓存中间件)
 - [认证授权中间件](#认证授权中间件)
 - [日志记录中间件](#日志记录中间件)
-- [性能监控中间件](#性能监控中间件)
-- [限流中间件](#限流中间件)
+- [性能优化中间件](#性能优化中间件)
 - [中间件组合](#中间件组合)
 
 ## 中间件设计原则
@@ -19,15 +17,22 @@
 ```typescript
 // ✅ 好的实践 - 单一职责
 export const authMiddleware = (requiredRole?: string) => {
-  return async (fn: () => Promise<any>): Promise<any> => {
-    const token = getAuthToken();
-    if (!token) throw new Error('未登录');
-    
-    if (requiredRole && !hasRole(requiredRole)) {
-      throw new Error('权限不足');
-    }
-    
-    return await fn();
+  return (fn: () => Promise<any>) => {
+    return async (): Promise<any> => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('未登录');
+      }
+      
+      if (requiredRole) {
+        const userRole = localStorage.getItem('user_role');
+        if (userRole !== requiredRole) {
+          throw new Error('权限不足');
+        }
+      }
+      
+      return await fn();
+    };
   };
 };
 
@@ -41,47 +46,52 @@ export const authAndLogMiddleware = () => {
 中间件应该能够灵活组合使用。
 
 ```typescript
-// 中间件组合器
-export const compose = (...middlewares: Middleware[]) => {
-  return (fn: Function) => {
-    return middlewares.reduceRight((acc, middleware) => {
-      return middleware(acc);
-    }, fn);
-  };
+// 中间件组合示例
+const enhancedApiCall = async () => {
+  return await loggerMiddleware('API调用')(
+    retryMiddleware(
+      authMiddleware()(apiCall),
+      3,
+      1000
+    )
+  )();
 };
-
-// 使用示例
-const enhancedApiCall = compose(
-  loggerMiddleware('API调用'),
-  retryMiddleware(3),
-  authMiddleware('admin'),
-  cacheMiddleware('user-data', 5 * 60 * 1000)
-)(apiCall);
 ```
 
 ### 3. 配置化
 中间件应该支持配置参数。
 
 ```typescript
-interface MiddlewareConfig {
-  enabled?: boolean;
-  timeout?: number;
-  retries?: number;
-  debug?: boolean;
-}
-
-export const createMiddleware = (config: MiddlewareConfig = {}) => {
-  const { enabled = true, timeout = 5000, retries = 3, debug = false } = config;
+// 重试中间件配置
+export const retryMiddleware = async (
+  fn: () => Promise<any>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<any> => {
+  let lastError: any;
   
-  return (fn: Function) => {
-    if (!enabled) return fn;
-    
-    return async (...args: any[]) => {
-      if (debug) console.log('Middleware executing with config:', config);
-      // 中间件逻辑
-      return await fn(...args);
-    };
-  };
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      
+      // 如果是客户端错误（4xx），不重试
+      if (error.response?.status >= 400 && error.response?.status < 500) {
+        throw error;
+      }
+      
+      // 最后一次重试失败
+      if (i === maxRetries - 1) {
+        throw error;
+      }
+      
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+    }
+  }
+  
+  throw lastError;
 };
 ```
 
@@ -89,114 +99,58 @@ export const createMiddleware = (config: MiddlewareConfig = {}) => {
 
 ### 1. 通用错误处理
 ```typescript
-interface ErrorContext {
-  operation: string;
-  timestamp: number;
-  userId?: string;
-  requestId?: string;
-}
-
-export class ErrorHandler {
-  private static instance: ErrorHandler;
-  private errorReporters: ErrorReporter[] = [];
-  
-  static getInstance(): ErrorHandler {
-    if (!ErrorHandler.instance) {
-      ErrorHandler.instance = new ErrorHandler();
-    }
-    return ErrorHandler.instance;
-  }
-  
-  addReporter(reporter: ErrorReporter): void {
-    this.errorReporters.push(reporter);
-  }
-  
-  async handleError(error: Error, context: ErrorContext): Promise<void> {
-    // 错误分类
-    const errorType = this.classifyError(error);
-    
-    // 错误上报
-    for (const reporter of this.errorReporters) {
-      try {
-        await reporter.report(error, context, errorType);
-      } catch (reportError) {
-        console.error('Error reporter failed:', reportError);
-      }
-    }
-    
-    // 用户通知
-    this.notifyUser(error, errorType);
-  }
-  
-  private classifyError(error: Error): ErrorType {
-    if (error.message.includes('网络')) return 'NETWORK_ERROR';
-    if (error.message.includes('权限')) return 'PERMISSION_ERROR';
-    if (error.message.includes('验证')) return 'VALIDATION_ERROR';
-    return 'UNKNOWN_ERROR';
-  }
-  
-  private notifyUser(error: Error, type: ErrorType): void {
-    const messages = {
-      NETWORK_ERROR: '网络连接失败，请检查网络设置',
-      PERMISSION_ERROR: '权限不足，请联系管理员',
-      VALIDATION_ERROR: '输入数据有误，请检查后重试',
-      UNKNOWN_ERROR: '系统错误，请稍后重试',
-    };
-    
-    toast.error(messages[type] || messages.UNKNOWN_ERROR);
-  }
-}
+import { Request, Response, NextFunction } from 'express';
+import { toast } from 'react-hot-toast';
 
 // 错误处理中间件
-export const errorHandlerMiddleware = (operation: string) => {
-  return (fn: Function) => {
-    return async (...args: any[]) => {
-      try {
-        return await fn(...args);
-      } catch (error) {
-        const context: ErrorContext = {
-          operation,
-          timestamp: Date.now(),
-          userId: getCurrentUserId(),
-          requestId: generateRequestId(),
-        };
-        
-        await ErrorHandler.getInstance().handleError(error as Error, context);
-        throw error;
-      }
-    };
-  };
+export const errorHandler = (error: any, req?: Request, res?: Response, next?: NextFunction) => {
+  console.error('Error caught by middleware:', error);
+
+  // 客户端错误处理
+  if (typeof window !== 'undefined') {
+    if (error.response?.status === 401) {
+      toast.error('认证失败，请重新登录');
+      // 重定向到登录页
+      window.location.href = '/login';
+    } else if (error.response?.status === 403) {
+      toast.error('权限不足');
+    } else if (error.response?.status === 404) {
+      toast.error('请求的资源不存在');
+    } else if (error.response?.status >= 500) {
+      toast.error('服务器错误，请稍后重试');
+    } else if (error.code === 'NETWORK_ERROR') {
+      toast.error('网络连接失败，请检查网络');
+    } else {
+      toast.error(error.message || '发生未知错误');
+    }
+  }
+
+  // 服务端错误处理
+  if (res) {
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error.message || 'Internal Server Error',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
+  }
 };
 ```
 
-### 2. 错误重试机制
+### 2. 加载状态中间件
 ```typescript
-interface RetryConfig {
-  maxAttempts: number;
-  baseDelay: number;
-  maxDelay: number;
-  backoffFactor: number;
-  retryCondition?: (error: Error) => boolean;
-}
-
-export const retryMiddleware = (config: RetryConfig) => {
-  const {
-    maxAttempts = 3,
-    baseDelay = 1000,
-    maxDelay = 10000,
-    backoffFactor = 2,
-    retryCondition = (error) => !error.message.includes('4')
-  } = config;
-  
-  return (fn: Function) => {
-    return async (...args: any[]) => {
-      let lastError: Error;
-      
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          return await fn(...args);
-        } catch (error) {
-          lastError = error as Error;
+// 加载状态中间件
+export const loadingMiddleware = (setLoading: (loading: boolean) => void) => {
+  return async (fn: () => Promise<any>): Promise<any> => {
+    try {
+      setLoading(true);
+      return await fn();
+    } finally {
+      setLoading(false);
+    }
+  };
+};
+```
           
           // 检查是否应该重试
           if (attempt === maxAttempts || !retryCondition(lastError)) {
@@ -331,121 +285,250 @@ export const responseInterceptorMiddleware = () => {
 
 ## 缓存中间件
 
-### 1. 内存缓存
+### 1. 简单缓存实现
 ```typescript
-interface CacheItem<T> {
-  data: T;
-  timestamp: number;
-  ttl: number;
-  hits: number;
-}
+// 缓存中间件
+export class CacheMiddleware {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-export class MemoryCache {
-  private cache = new Map<string, CacheItem<any>>();
-  private maxSize: number;
-  private cleanupInterval: NodeJS.Timeout;
-  
-  constructor(maxSize: number = 1000, cleanupIntervalMs: number = 60000) {
-    this.maxSize = maxSize;
-    
-    // 定期清理过期缓存
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, cleanupIntervalMs);
-  }
-  
-  get<T>(key: string): T | null {
+  get(key: string): any | null {
     const item = this.cache.get(key);
     if (!item) return null;
     
-    // 检查是否过期
     if (Date.now() - item.timestamp > item.ttl) {
       this.cache.delete(key);
       return null;
     }
     
-    // 更新命中次数
-    item.hits++;
     return item.data;
   }
-  
-  set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): void {
-    // 检查缓存大小限制
-    if (this.cache.size >= this.maxSize) {
-      this.evictLRU();
-    }
-    
+
+  set(key: string, data: any, ttl: number = 5 * 60 * 1000): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl,
-      hits: 0,
+      ttl
     });
   }
-  
-  private evictLRU(): void {
-    let lruKey = '';
-    let lruHits = Infinity;
-    
-    for (const [key, item] of this.cache.entries()) {
-      if (item.hits < lruHits) {
-        lruHits = item.hits;
-        lruKey = key;
-      }
-    }
-    
-    if (lruKey) {
-      this.cache.delete(lruKey);
-    }
-  }
-  
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
-      if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key);
-      }
-    }
-  }
-  
+
   clear(): void {
     this.cache.clear();
   }
-  
-  destroy(): void {
-    clearInterval(this.cleanupInterval);
-    this.clear();
+
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
+
+  // 缓存装饰器
+  withCache(key: string, ttl?: number) {
+    return (fn: () => Promise<any>) => {
+      return async (): Promise<any> => {
+        const cached = this.get(key);
+        if (cached) {
+          console.log('Cache hit:', key);
+          return cached;
+        }
+        
+        const result = await fn();
+        this.set(key, result, ttl);
+        console.log('Cache set:', key);
+        return result;
+      };
+    };
   }
 }
 
-// 缓存中间件
-export const cacheMiddleware = (
-  keyGenerator: (...args: any[]) => string,
-  ttl: number = 5 * 60 * 1000,
-  cache: MemoryCache = new MemoryCache()
-) => {
-  return (fn: Function) => {
-    return async (...args: any[]) => {
-      const cacheKey = keyGenerator(...args);
-      
-      // 尝试从缓存获取
-      const cached = cache.get(cacheKey);
-      if (cached !== null) {
-        console.log(`Cache hit: ${cacheKey}`);
-        return cached;
+```
+
+## 认证授权中间件
+
+### 1. 权限检查中间件
+```typescript
+// 权限检查中间件
+export const authMiddleware = (requiredRole?: string) => {
+  return (fn: () => Promise<any>) => {
+    return async (): Promise<any> => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('未登录');
       }
       
-      // 执行原函数
-      const result = await fn(...args);
+      // 这里可以添加角色检查逻辑
+      if (requiredRole) {
+        const userRole = localStorage.getItem('user_role');
+        if (userRole !== requiredRole) {
+          throw new Error('权限不足');
+        }
+      }
       
-      // 存储到缓存
-      cache.set(cacheKey, result, ttl);
-      console.log(`Cache set: ${cacheKey}`);
-      
-      return result;
+      return await fn();
     };
   };
 };
+```
+
+### 2. 使用示例
+```typescript
+// 需要登录的API调用
+const fetchUserData = authMiddleware()(async () => {
+  return await api.get('/user/profile');
+});
+
+// 需要管理员权限的API调用
+const deleteUser = authMiddleware('admin')(async () => {
+  return await api.delete('/user/123');
+});
+```
+
+## 日志记录中间件
+
+### 1. 日志中间件
+```typescript
+// 日志中间件
+export const loggerMiddleware = (operation: string) => {
+  return (fn: () => Promise<any>) => {
+    return async (): Promise<any> => {
+      const startTime = Date.now();
+      console.log(`🚀 Starting ${operation}`);
+      
+      try {
+        const result = await fn();
+        const duration = Date.now() - startTime;
+        console.log(`✅ ${operation} completed in ${duration}ms`);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        console.error(`❌ ${operation} failed after ${duration}ms:`, error);
+        throw error;
+      }
+    };
+  };
+};
+```
+
+### 2. 使用示例
+```typescript
+// 带日志的API调用
+const fetchNews = loggerMiddleware('获取新闻列表')(async () => {
+  return await newsApi.getNews();
+});
+```
+
+## 性能优化中间件
+
+### 1. 防抖中间件
+```typescript
+// 防抖中间件
+export const debounceMiddleware = (fn: Function, delay: number = 300) => {
+  let timeoutId: NodeJS.Timeout;
+  
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(null, args), delay);
+  };
+};
+```
+
+### 2. 节流中间件
+```typescript
+// 节流中间件
+export const throttleMiddleware = (fn: Function, limit: number = 1000) => {
+  let inThrottle: boolean;
+  
+  return (...args: any[]) => {
+    if (!inThrottle) {
+      fn.apply(null, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
+```
+
+### 3. 使用示例
+```typescript
+// 防抖搜索
+const debouncedSearch = debounceMiddleware((query: string) => {
+  console.log('搜索:', query);
+}, 300);
+
+// 节流滚动
+const throttledScroll = throttleMiddleware(() => {
+  console.log('滚动事件');
+}, 100);
+```
+
+## 中间件组合
+
+### 1. 组合使用示例
+```typescript
+// 组合多个中间件
+const enhancedApiCall = async () => {
+  return await loggerMiddleware('API调用')(
+    loadingMiddleware(setLoading)(
+      retryMiddleware(
+        authMiddleware()(apiCall),
+        3,
+        1000
+      )
+    )
+  )();
+};
+```
+
+### 2. 最佳实践
+```typescript
+// 创建通用的API调用包装器
+export const createApiWrapper = (
+  operation: string,
+  requireAuth: boolean = true,
+  enableCache: boolean = false,
+  cacheKey?: string
+) => {
+  return (apiCall: () => Promise<any>) => {
+    let wrappedCall = apiCall;
+    
+    // 添加认证
+    if (requireAuth) {
+      wrappedCall = authMiddleware()(wrappedCall);
+    }
+    
+    // 添加缓存
+    if (enableCache && cacheKey) {
+      wrappedCall = globalCache.withCache(cacheKey)(wrappedCall);
+    }
+    
+    // 添加重试
+    wrappedCall = () => retryMiddleware(wrappedCall, 3, 1000);
+    
+    // 添加日志
+    wrappedCall = loggerMiddleware(operation)(wrappedCall);
+    
+    return wrappedCall;
+  };
+};
+
+// 使用示例
+const getNewsWithMiddleware = createApiWrapper(
+  '获取新闻',
+  true,
+  true,
+  'news-list'
+)(async () => {
+  return await newsApi.getNews();
+});
+```
+
+## 总结
+
+本项目的中间件设计遵循以下原则：
+
+1. **简单实用**：实现简单但功能完整的中间件
+2. **易于组合**：中间件可以灵活组合使用
+3. **类型安全**：使用TypeScript确保类型安全
+4. **性能优化**：包含缓存、防抖、节流等性能优化功能
+5. **错误处理**：统一的错误处理和用户提示
+6. **开发友好**：提供详细的日志和调试信息
 ```
 
 ### 2. 分布式缓存

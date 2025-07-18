@@ -3,13 +3,11 @@
 ## 目录
 1. [设计原则](#设计原则)
 2. [主题系统](#主题系统)
-3. [样式架构](#样式架构)
+3. [Tailwind CSS配置](#tailwind-css配置)
 4. [组件样式](#组件样式)
 5. [响应式设计](#响应式设计)
 6. [动画系统](#动画系统)
-7. [性能优化](#性能优化)
-8. [维护策略](#维护策略)
-9. [最佳实践](#最佳实践)
+7. [最佳实践](#最佳实践)
 
 ## 设计原则
 
@@ -38,32 +36,22 @@
 ### 1. 主题配置结构
 
 ```typescript
-// theme/index.ts
+// src/theme/index.ts
 export const themes = {
   light: {
     name: 'light',
     colors: {
-      // 主色调
       primary: '#3B82F6',
       secondary: '#6B7280',
       accent: '#10B981',
-      
-      // 背景色
       background: '#FFFFFF',
       surface: '#F9FAFB',
-      
-      // 文本色
       text: {
         primary: '#111827',
         secondary: '#6B7280',
         muted: '#9CA3AF',
-        inverse: '#FFFFFF',
       },
-      
-      // 边框色
       border: '#E5E7EB',
-      
-      // 状态色
       error: '#EF4444',
       warning: '#F59E0B',
       success: '#10B981',
@@ -88,7 +76,6 @@ export const themes = {
         primary: '#F9FAFB',
         secondary: '#D1D5DB',
         muted: '#9CA3AF',
-        inverse: '#111827',
       },
       border: '#374151',
       error: '#F87171',
@@ -109,97 +96,583 @@ export const themes = {
 ### 2. 设计令牌系统
 
 ```typescript
-// theme/tokens.ts
-export const designTokens = {
-  // 间距系统 (8px 基准)
-  spacing: {
-    0: '0px',
-    1: '0.25rem',    // 4px
-    2: '0.5rem',     // 8px
-    3: '0.75rem',    // 12px
-    4: '1rem',       // 16px
-    5: '1.25rem',    // 20px
-    6: '1.5rem',     // 24px
-    8: '2rem',       // 32px
-    10: '2.5rem',    // 40px
-    12: '3rem',      // 48px
-    16: '4rem',      // 64px
-    20: '5rem',      // 80px
-    24: '6rem',      // 96px
-    32: '8rem',      // 128px
+// 响应式断点
+export const breakpoints = {
+  xs: '475px',
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+  xl: '1280px',
+  '2xl': '1536px',
+};
+
+// 间距系统
+export const spacing = {
+  0: '0px',
+  1: '0.25rem',    // 4px
+  2: '0.5rem',     // 8px
+  3: '0.75rem',    // 12px
+  4: '1rem',       // 16px
+  5: '1.25rem',    // 20px
+  6: '1.5rem',     // 24px
+  8: '2rem',       // 32px
+  10: '2.5rem',    // 40px
+  12: '3rem',      // 48px
+  16: '4rem',      // 64px
+  20: '5rem',      // 80px
+  24: '6rem',      // 96px
+  32: '8rem',      // 128px
+  40: '10rem',     // 160px
+  48: '12rem',     // 192px
+  56: '14rem',     // 224px
+  64: '16rem',     // 256px
+};
+
+// 字体系统
+export const typography = {
+  fontFamily: {
+    sans: ['Inter', 'system-ui', 'sans-serif'],
+    mono: ['JetBrains Mono', 'Consolas', 'monospace'],
   },
-  
-  // 字体系统
-  typography: {
-    fontFamily: {
-      sans: ['Inter', 'system-ui', 'sans-serif'],
-      mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+  fontSize: {
+    xs: ['0.75rem', { lineHeight: '1rem' }],      // 12px
+    sm: ['0.875rem', { lineHeight: '1.25rem' }],  // 14px
+    base: ['1rem', { lineHeight: '1.5rem' }],     // 16px
+    lg: ['1.125rem', { lineHeight: '1.75rem' }],  // 18px
+    xl: ['1.25rem', { lineHeight: '1.75rem' }],   // 20px
+    '2xl': ['1.5rem', { lineHeight: '2rem' }],    // 24px
+    '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
+    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],   // 36px
+    '5xl': ['3rem', { lineHeight: '1' }],           // 48px
+    '6xl': ['3.75rem', { lineHeight: '1' }],        // 60px
+  },
+  fontWeight: {
+    thin: '100',
+    light: '300',
+    normal: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
+    extrabold: '800',
+    black: '900',
+  },
+};
+```
+```
+
+### 3. 动画系统
+
+```typescript
+// 动画配置
+export const animations = {
+  duration: {
+    fast: '150ms',
+    normal: '300ms',
+    slow: '500ms',
+  },
+  easing: {
+    linear: 'linear',
+    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+    easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  },
+  keyframes: {
+    fadeIn: {
+      '0%': { opacity: '0' },
+      '100%': { opacity: '1' },
     },
-    fontSize: {
-      xs: ['0.75rem', { lineHeight: '1rem' }],      // 12px
-      sm: ['0.875rem', { lineHeight: '1.25rem' }],  // 14px
-      base: ['1rem', { lineHeight: '1.5rem' }],     // 16px
-      lg: ['1.125rem', { lineHeight: '1.75rem' }],  // 18px
-      xl: ['1.25rem', { lineHeight: '1.75rem' }],   // 20px
-      '2xl': ['1.5rem', { lineHeight: '2rem' }],    // 24px
-      '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
-      '4xl': ['2.25rem', { lineHeight: '2.5rem' }],   // 36px
+    slideIn: {
+      '0%': { transform: 'translateX(-100%)' },
+      '100%': { transform: 'translateX(0)' },
     },
-    fontWeight: {
-      thin: '100',
-      light: '300',
-      normal: '400',
-      medium: '500',
-      semibold: '600',
-      bold: '700',
-      extrabold: '800',
-      black: '900',
+    bounce: {
+      '0%, 20%, 53%, 80%, 100%': { transform: 'translate3d(0,0,0)' },
+      '40%, 43%': { transform: 'translate3d(0, -30px, 0)' },
+      '70%': { transform: 'translate3d(0, -15px, 0)' },
+      '90%': { transform: 'translate3d(0, -4px, 0)' },
     },
   },
-  
-  // 圆角系统
-  borderRadius: {
-    none: '0px',
-    sm: '0.125rem',   // 2px
-    base: '0.25rem',  // 4px
-    md: '0.375rem',   // 6px
-    lg: '0.5rem',     // 8px
-    xl: '0.75rem',    // 12px
-    '2xl': '1rem',    // 16px
-    '3xl': '1.5rem',  // 24px
-    full: '9999px',
+};
+
+// 组件变体
+export const variants = {
+  button: {
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500',
+    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
+    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   },
-  
-  // 断点系统
-  breakpoints: {
-    xs: '475px',
-    sm: '640px',
-    md: '768px',
-    lg: '1024px',
-    xl: '1280px',
-    '2xl': '1536px',
+  input: {
+    default: 'border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+    error: 'border border-red-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500',
+    success: 'border border-green-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500',
   },
-  
-  // Z-index 层级
-  zIndex: {
-    hide: -1,
-    auto: 'auto',
-    base: 0,
-    docked: 10,
-    dropdown: 1000,
-    sticky: 1100,
-    banner: 1200,
-    overlay: 1300,
-    modal: 1400,
-    popover: 1500,
-    skipLink: 1600,
-    toast: 1700,
-    tooltip: 1800,
+  card: {
+    default: 'bg-white rounded-lg shadow-md border border-gray-200',
+    elevated: 'bg-white rounded-lg shadow-lg border border-gray-200',
+    flat: 'bg-white rounded-lg border border-gray-200',
   },
 };
 ```
 
-### 3. 主题工具函数
+## Tailwind CSS配置
+
+### 1. 基础配置
+
+```javascript
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+### 2. CSS变量定义
+
+```css
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+```
+
+## 组件样式
+
+### 1. 按钮组件样式
+
+```typescript
+// 按钮变体样式
+export const buttonVariants = {
+  variant: {
+    default: "bg-primary text-primary-foreground hover:bg-primary/90",
+    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    ghost: "hover:bg-accent hover:text-accent-foreground",
+    link: "text-primary underline-offset-4 hover:underline",
+  },
+  size: {
+    default: "h-10 px-4 py-2",
+    sm: "h-9 rounded-md px-3",
+    lg: "h-11 rounded-md px-8",
+    icon: "h-10 w-10",
+  },
+};
+
+// 使用示例
+const Button = ({ variant = 'default', size = 'default', className, ...props }) => {
+  return (
+    <button
+      className={cn(
+        "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        buttonVariants.variant[variant],
+        buttonVariants.size[size],
+        className
+      )}
+      {...props}
+    />
+  );
+};
+```
+
+### 2. 卡片组件样式
+
+```typescript
+// 卡片组件样式
+export const cardVariants = {
+  variant: {
+    default: "bg-card text-card-foreground shadow-sm",
+    elevated: "bg-card text-card-foreground shadow-lg",
+    outline: "bg-card text-card-foreground border border-border",
+  },
+  padding: {
+    none: "",
+    sm: "p-4",
+    md: "p-6",
+    lg: "p-8",
+  },
+};
+
+// 使用示例
+const Card = ({ variant = 'default', padding = 'md', className, ...props }) => {
+  return (
+    <div
+      className={cn(
+        "rounded-lg border",
+        cardVariants.variant[variant],
+        cardVariants.padding[padding],
+        className
+      )}
+      {...props}
+    />
+  );
+};
+```
+
+## 响应式设计
+
+### 1. 断点策略
+
+```typescript
+// 响应式断点使用
+const ResponsiveComponent = () => {
+  return (
+    <div className="
+      grid 
+      grid-cols-1 
+      sm:grid-cols-2 
+      md:grid-cols-3 
+      lg:grid-cols-4 
+      xl:grid-cols-5 
+      gap-4
+      p-4 
+      sm:p-6 
+      md:p-8
+    ">
+      {/* 内容 */}
+    </div>
+  );
+};
+```
+
+### 2. 移动端优先设计
+
+```css
+/* 移动端优先的样式策略 */
+.responsive-text {
+  @apply text-sm sm:text-base md:text-lg lg:text-xl;
+}
+
+.responsive-spacing {
+  @apply p-4 sm:p-6 md:p-8 lg:p-12;
+}
+
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+```
+
+## 动画系统
+
+### 1. 过渡动画
+
+```css
+/* 通用过渡动画 */
+.transition-base {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.transition-fast {
+  @apply transition-all duration-150 ease-in-out;
+}
+
+.transition-slow {
+  @apply transition-all duration-500 ease-in-out;
+}
+
+/* 悬停效果 */
+.hover-lift {
+  @apply transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg;
+}
+
+.hover-fade {
+  @apply transition-opacity duration-300 ease-in-out hover:opacity-80;
+}
+```
+
+### 2. 关键帧动画
+
+```css
+/* 自定义关键帧动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 动画类 */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s infinite;
+}
+```
+
+## 最佳实践
+
+### 1. 样式组织
+
+```typescript
+// 1. 使用 clsx 或 cn 工具函数组合类名
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// 2. 创建可复用的样式变体
+export const textVariants = {
+  size: {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  },
+  weight: {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  },
+  color: {
+    primary: "text-primary",
+    secondary: "text-secondary",
+    muted: "text-muted-foreground",
+    destructive: "text-destructive",
+  },
+};
+```
+
+### 2. 性能优化
+
+```typescript
+// 1. 使用 CSS-in-JS 时的优化
+const optimizedStyles = useMemo(() => ({
+  container: cn(
+    "flex items-center justify-between",
+    "p-4 rounded-lg border",
+    isActive && "bg-primary text-primary-foreground",
+    isDisabled && "opacity-50 pointer-events-none"
+  ),
+}), [isActive, isDisabled]);
+
+// 2. 避免内联样式，使用预定义类
+// ❌ 不推荐
+<div style={{ padding: '16px', margin: '8px' }} />
+
+// ✅ 推荐
+<div className="p-4 m-2" />
+```
+
+### 3. 主题切换
+
+```typescript
+// 主题切换实现
+export const useTheme = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    localStorage.setItem('theme', newTheme);
+  }, [theme]);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const initialTheme = savedTheme || systemTheme;
+    
+    setTheme(initialTheme);
+    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+  }, []);
+
+  return { theme, toggleTheme };
+};
+```
+
+### 4. 可访问性
+
+```typescript
+// 可访问性样式指南
+export const accessibilityStyles = {
+  // 焦点样式
+  focusVisible: "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  
+  // 高对比度支持
+  highContrast: "contrast-more:border-black contrast-more:text-black dark:contrast-more:border-white dark:contrast-more:text-white",
+  
+  // 减少动画
+  reduceMotion: "motion-reduce:transition-none motion-reduce:animate-none",
+  
+  // 屏幕阅读器
+  srOnly: "sr-only",
+  
+  // 跳转链接
+  skipLink: "absolute left-[-10000px] top-auto w-1 h-1 overflow-hidden focus:left-6 focus:top-7 focus:w-auto focus:h-auto focus:overflow-visible",
+};
+
+// 使用示例
+const AccessibleButton = ({ children, ...props }) => {
+  return (
+    <button
+      className={cn(
+        "px-4 py-2 rounded-md",
+        "bg-primary text-primary-foreground",
+        accessibilityStyles.focusVisible,
+        accessibilityStyles.reduceMotion,
+        accessibilityStyles.highContrast
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+### 5. 样式测试
+
+```typescript
+// 样式组件测试
+import { render, screen } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button Component', () => {
+  it('应用正确的变体样式', () => {
+    render(<Button variant="destructive">删除</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('bg-destructive');
+  });
+
+  it('支持自定义类名', () => {
+    render(<Button className="custom-class">按钮</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('custom-class');
+  });
+
+  it('在禁用状态下应用正确样式', () => {
+    render(<Button disabled>禁用按钮</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('disabled:opacity-50');
+    expect(button).toBeDisabled();
+  });
+});
+```
+
+这个样式与主题最佳实践指南涵盖了：
+
+1. **主题系统**：完整的明暗主题配置和设计令牌
+2. **Tailwind CSS配置**：实际的配置文件和CSS变量定义
+3. **组件样式**：可复用的样式变体和组件实现
+4. **响应式设计**：移动端优先的设计策略
+5. **动画系统**：过渡动画和关键帧动画
+6. **最佳实践**：样式组织、性能优化、主题切换、可访问性和测试
+
+这些实践确保了样式系统的一致性、可维护性和可扩展性。
 
 ```typescript
 // theme/utils.ts

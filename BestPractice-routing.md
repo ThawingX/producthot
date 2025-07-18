@@ -1,204 +1,474 @@
-# 路由最佳实践指南
+# 导航最佳实践指南
 
 ## 目录
 
-- [路由架构设计](#路由架构设计)
-- [路由配置](#路由配置)
+- [导航架构设计](#导航架构设计)
+- [Tab导航配置](#tab导航配置)
 - [页面组件](#页面组件)
-- [路由守卫](#路由守卫)
-- [懒加载](#懒加载)
-- [路由状态管理](#路由状态管理)
-- [SEO优化](#seo优化)
-- [错误处理](#错误处理)
+- [状态管理](#状态管理)
+- [移动端适配](#移动端适配)
+- [用户体验优化](#用户体验优化)
 - [性能优化](#性能优化)
 - [最佳实践](#最佳实践)
 
-## 路由架构设计
+## 导航架构设计
 
-### 1. 路由层次结构
+### 1. Tab导航结构
+
+当前项目采用基于Tab的导航模式，而非传统的路由模式。这种设计更适合单页应用的快速切换需求。
 
 ```
-/                           # 首页
-├── /news                   # 新闻列表
-│   ├── /news/:id          # 新闻详情
-│   └── /news/category/:category # 分类新闻
-├── /channels               # 频道管理
-│   ├── /channels/:id      # 频道详情
-│   └── /channels/create   # 创建频道
-├── /settings               # 设置页面
-│   ├── /settings/profile  # 个人资料
-│   ├── /settings/preferences # 偏好设置
-│   └── /settings/notifications # 通知设置
-├── /auth                   # 认证相关
-│   ├── /auth/login        # 登录
-│   ├── /auth/register     # 注册
-│   └── /auth/forgot-password # 忘记密码
-└── /admin                  # 管理后台
-    ├── /admin/dashboard   # 仪表板
-    ├── /admin/users       # 用户管理
-    └── /admin/analytics   # 数据分析
+主应用 (App.tsx)
+├── 产品新闻 (news)          # 产品热点新闻页面
+└── 线索分析 (analysis)      # 数据分析页面
 ```
 
-### 2. 路由配置结构
+### 2. 导航类型定义
 
 ```typescript
-// src/router/types.ts
-export interface RouteConfig {
-  path: string;
-  component: React.ComponentType;
-  exact?: boolean;
-  meta?: {
-    title?: string;
-    requiresAuth?: boolean;
-    roles?: string[];
-    layout?: string;
-    keepAlive?: boolean;
-  };
-  children?: RouteConfig[];
-}
+// src/types/index.ts
+export type TabType = 'news' | 'analysis';
 
-export interface RouteGuard {
-  beforeEnter?: (to: RouteConfig, from: RouteConfig) => boolean | Promise<boolean>;
-  beforeLeave?: (to: RouteConfig, from: RouteConfig) => boolean | Promise<boolean>;
+export interface NavigationProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 ```
 
-## 路由配置
+## Tab导航配置
 
-### 1. React Router 配置
+### 1. 主应用结构
 
 ```typescript
-// src/router/index.tsx
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '../components/layout';
-import { LoadingSpinner } from '../components/ui';
-import { ProtectedRoute } from './ProtectedRoute';
-import { RouteGuard } from './RouteGuard';
+// src/App.tsx
+import React, { useState } from 'react';
+import { NavigationHeader } from './components/layout/NavigationHeader';
+import { ProductNewsPage } from './pages/ProductNewsPage';
+import { ClueAnalysisPage } from './pages/ClueAnalysisPage';
+import { TabType } from './types';
 
-// 懒加载页面组件
-const HomePage = React.lazy(() => import('../pages/HomePage'));
-const NewsPage = React.lazy(() => import('../pages/NewsPage'));
-const NewsDetailPage = React.lazy(() => import('../pages/NewsDetailPage'));
-const ChannelsPage = React.lazy(() => import('../pages/ChannelsPage'));
-const SettingsPage = React.lazy(() => import('../pages/SettingsPage'));
-const LoginPage = React.lazy(() => import('../pages/auth/LoginPage'));
-const NotFoundPage = React.lazy(() => import('../pages/NotFoundPage'));
+function App() {
+  const [activeTab, setActiveTab] = useState<TabType>('news');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-export const AppRouter: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          {/* 公开路由 */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
-            
-            {/* 新闻相关路由 */}
-            <Route path="news">
-              <Route index element={<NewsPage />} />
-              <Route path=":id" element={<NewsDetailPage />} />
-              <Route path="category/:category" element={<NewsPage />} />
-            </Route>
+    <div className="min-h-screen bg-gray-50">
+      <NavigationHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
+      
+      {activeTab === 'news' ? <ProductNewsPage /> : <ClueAnalysisPage />}
+    </div>
+  );
+}
 
-            {/* 需要认证的路由 */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="channels">
-                <Route index element={<ChannelsPage />} />
-                <Route path=":id" element={<ChannelsPage />} />
-                <Route path="create" element={<ChannelsPage />} />
-              </Route>
+export default App;
+```
 
-              <Route path="settings">
-                <Route index element={<SettingsPage />} />
-                <Route path="profile" element={<SettingsPage />} />
-                <Route path="preferences" element={<SettingsPage />} />
-                <Route path="notifications" element={<SettingsPage />} />
-              </Route>
-            </Route>
+### 2. 导航头组件
 
-            {/* 管理员路由 */}
-            <Route element={<ProtectedRoute requiredRole="admin" />}>
-              <Route path="admin/*" element={<AdminRoutes />} />
-            </Route>
-          </Route>
+```typescript
+// src/components/layout/NavigationHeader.tsx
+import React from 'react';
+import { TabType } from '../../types';
 
-          {/* 认证路由 (无布局) */}
-          <Route path="auth">
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-          </Route>
+interface NavigationHeaderProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+}
 
-          {/* 重定向和错误处理 */}
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
+  activeTab,
+  setActiveTab,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+}) => {
+  const tabs = [
+    { id: 'news' as TabType, label: '产品新闻', icon: '📰' },
+    { id: 'analysis' as TabType, label: '线索分析', icon: '📊' },
+  ];
+
+  return (
+    <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold text-gray-900">ProductHot</h1>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <span className="mr-2">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="mr-2">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};
+```
+## 页面组件
+
+### 1. 页面组件结构
+
+```typescript
+// src/pages/ProductNewsPage.tsx
+import React from 'react';
+import { ChannelCard } from '../components/news/ChannelCard';
+import { useNewsStore } from '../store';
+
+export const ProductNewsPage: React.FC = () => {
+  const { channels, loading } = useNewsStore();
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">加载中...</div>;
+  }
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {channels.map((channel) => (
+          <ChannelCard key={channel.id} channel={channel} />
+        ))}
+      </div>
+    </main>
   );
 };
 ```
 
-### 2. 路由配置文件
+```typescript
+// src/pages/ClueAnalysisPage.tsx
+import React from 'react';
+
+export const ClueAnalysisPage: React.FC = () => {
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">线索分析</h2>
+        <p className="text-gray-600">数据分析功能正在开发中...</p>
+      </div>
+    </main>
+  );
+};
+```
+
+### 2. 页面组件最佳实践
+
+- **单一职责**: 每个页面组件只负责一个主要功能
+- **数据获取**: 在页面组件中处理数据获取和状态管理
+- **布局一致**: 使用统一的容器和间距规范
+- **加载状态**: 提供清晰的加载和错误状态反馈
+
+## 状态管理
+
+### 1. Tab状态管理
 
 ```typescript
-// src/router/routes.ts
-import { RouteConfig } from './types';
+// 在App.tsx中管理Tab状态
+const [activeTab, setActiveTab] = useState<TabType>('news');
 
-export const routes: RouteConfig[] = [
-  {
-    path: '/',
-    component: HomePage,
-    exact: true,
-    meta: {
-      title: 'ProductHot - 热门产品追踪',
-      layout: 'default'
-    }
-  },
-  {
-    path: '/news',
-    component: NewsPage,
-    meta: {
-      title: '新闻列表',
-      keepAlive: true
-    },
-    children: [
-      {
-        path: '/news/:id',
-        component: NewsDetailPage,
-        meta: {
-          title: '新闻详情'
-        }
-      }
-    ]
-  },
-  {
-    path: '/channels',
-    component: ChannelsPage,
-    meta: {
-      title: '频道管理',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/settings',
-    component: SettingsPage,
-    meta: {
-      title: '设置',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/admin',
-    component: AdminLayout,
-    meta: {
-      title: '管理后台',
-      requiresAuth: true,
-      roles: ['admin']
-    }
+// 可以扩展为使用Zustand进行全局状态管理
+interface NavigationStore {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+}
+
+export const useNavigationStore = create<NavigationStore>((set) => ({
+  activeTab: 'news',
+  setActiveTab: (tab) => set({ activeTab: tab }),
+  isMobileMenuOpen: false,
+  setIsMobileMenuOpen: (open) => set({ isMobileMenuOpen: open }),
+}));
+```
+
+### 2. 页面状态持久化
+
+```typescript
+// 使用localStorage保存用户的Tab偏好
+const [activeTab, setActiveTab] = useState<TabType>(() => {
+  const saved = localStorage.getItem('activeTab');
+  return (saved as TabType) || 'news';
+});
+
+useEffect(() => {
+  localStorage.setItem('activeTab', activeTab);
+}, [activeTab]);
+```
+
+## 移动端适配
+
+### 1. 响应式导航
+
+- **桌面端**: 水平Tab导航
+- **移动端**: 汉堡菜单 + 垂直导航
+
+### 2. 移动端优化
+
+```typescript
+// 移动端菜单自动关闭
+const handleTabChange = (tab: TabType) => {
+  setActiveTab(tab);
+  if (window.innerWidth < 768) {
+    setIsMobileMenuOpen(false);
   }
+};
+
+// 监听屏幕尺寸变化
+useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth >= 768) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+```
+
+## 用户体验优化
+
+### 1. 视觉反馈
+
+- **活跃状态**: 清晰的视觉指示当前选中的Tab
+- **悬停效果**: 提供交互反馈
+- **过渡动画**: 平滑的状态切换
+
+### 2. 键盘导航
+
+```typescript
+// 支持键盘导航
+const handleKeyDown = (event: KeyboardEvent, tab: TabType) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    setActiveTab(tab);
+  }
+};
+
+// 在按钮上添加键盘事件
+<button
+  onKeyDown={(e) => handleKeyDown(e, tab.id)}
+  tabIndex={0}
+  role="tab"
+  aria-selected={activeTab === tab.id}
+>
+  {tab.label}
+</button>
+```
+
+### 3. 无障碍访问
+
+```typescript
+// ARIA属性支持
+<nav role="tablist" aria-label="主导航">
+  {tabs.map((tab) => (
+    <button
+      key={tab.id}
+      role="tab"
+      aria-selected={activeTab === tab.id}
+      aria-controls={`panel-${tab.id}`}
+      id={`tab-${tab.id}`}
+      onClick={() => setActiveTab(tab.id)}
+    >
+      {tab.label}
+    </button>
+  ))}
+</nav>
+
+<div
+  role="tabpanel"
+  aria-labelledby={`tab-${activeTab}`}
+  id={`panel-${activeTab}`}
+>
+  {/* 页面内容 */}
+</div>
+```
+
+## 性能优化
+
+### 1. 组件懒加载
+
+```typescript
+// 懒加载页面组件
+const ProductNewsPage = React.lazy(() => import('../pages/ProductNewsPage'));
+const ClueAnalysisPage = React.lazy(() => import('../pages/ClueAnalysisPage'));
+
+// 在App.tsx中使用Suspense
+<Suspense fallback={<div>加载中...</div>}>
+  {activeTab === 'news' ? <ProductNewsPage /> : <ClueAnalysisPage />}
+</Suspense>
+```
+
+### 2. 状态缓存
+
+```typescript
+// 缓存页面状态，避免重复渲染
+const [pageCache, setPageCache] = useState<Record<TabType, React.ReactNode>>({});
+
+const renderPage = (tab: TabType) => {
+  if (!pageCache[tab]) {
+    const page = tab === 'news' ? <ProductNewsPage /> : <ClueAnalysisPage />;
+    setPageCache(prev => ({ ...prev, [tab]: page }));
+    return page;
+  }
+  return pageCache[tab];
+};
+```
+
+## 最佳实践
+
+### 1. 导航设计原则
+
+- **简洁明了**: Tab数量控制在2-5个之间
+- **语义清晰**: 使用直观的标签和图标
+- **一致性**: 保持导航样式和行为的一致性
+- **可访问性**: 支持键盘导航和屏幕阅读器
+
+### 2. 状态管理原则
+
+- **最小状态**: 只管理必要的导航状态
+- **单一数据源**: 避免状态重复和不一致
+- **持久化**: 保存用户的导航偏好
+- **响应式**: 根据屏幕尺寸调整导航行为
+
+### 3. 性能优化原则
+
+- **按需加载**: 使用懒加载减少初始包大小
+- **状态缓存**: 避免不必要的组件重新渲染
+- **事件优化**: 使用防抖和节流优化交互事件
+- **内存管理**: 及时清理事件监听器和定时器
+
+### 4. 扩展性考虑
+
+```typescript
+// 可配置的Tab系统
+interface TabConfig {
+  id: TabType;
+  label: string;
+  icon: string;
+  component: React.ComponentType;
+  requireAuth?: boolean;
+  badge?: number;
+}
+
+const tabConfigs: TabConfig[] = [
+  {
+    id: 'news',
+    label: '产品新闻',
+    icon: '📰',
+    component: ProductNewsPage,
+  },
+  {
+    id: 'analysis',
+    label: '线索分析',
+    icon: '📊',
+    component: ClueAnalysisPage,
+    requireAuth: true,
+  },
 ];
+
+// 动态渲染Tab
+const renderTabs = () => {
+  return tabConfigs
+    .filter(tab => !tab.requireAuth || isAuthenticated)
+    .map(tab => (
+      <TabButton key={tab.id} config={tab} />
+    ));
+};
+```
+
+### 5. 测试策略
+
+```typescript
+// 导航组件测试
+describe('NavigationHeader', () => {
+  it('should render all tabs', () => {
+    render(<NavigationHeader {...defaultProps} />);
+    expect(screen.getByText('产品新闻')).toBeInTheDocument();
+    expect(screen.getByText('线索分析')).toBeInTheDocument();
+  });
+
+  it('should switch tabs on click', () => {
+    const setActiveTab = jest.fn();
+    render(<NavigationHeader {...defaultProps} setActiveTab={setActiveTab} />);
+    
+    fireEvent.click(screen.getByText('线索分析'));
+    expect(setActiveTab).toHaveBeenCalledWith('analysis');
+  });
+
+  it('should close mobile menu after tab selection', () => {
+    const setIsMobileMenuOpen = jest.fn();
+    render(
+      <NavigationHeader 
+        {...defaultProps} 
+        isMobileMenuOpen={true}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
+    );
+    
+    fireEvent.click(screen.getByText('线索分析'));
+    expect(setIsMobileMenuOpen).toHaveBeenCalledWith(false);
+  });
+});
 ```
 
 ## 页面组件

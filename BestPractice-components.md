@@ -91,20 +91,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 ```
 src/components/
 ├── ui/                    # 基础 UI 组件
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.test.tsx
-│   │   ├── Button.stories.tsx
-│   │   └── index.ts
+│   ├── Button.tsx
+│   ├── Card.tsx
+│   ├── Input.tsx
+│   ├── Loading.tsx
 │   └── index.ts
 ├── layout/                # 布局组件
-│   ├── Header/
-│   ├── Sidebar/
-│   └── Layout/
-├── business/              # 业务组件
-│   ├── NewsCard/
-│   ├── UserProfile/
-│   └── ProductList/
+│   ├── Header.tsx
+│   ├── Layout.tsx
+│   ├── NavigationHeader.tsx
+│   ├── Sidebar.tsx
+│   └── index.ts
+├── news/                  # 新闻相关组件
+│   ├── ChannelCard.tsx
+│   ├── NewsCard.tsx
+│   ├── NewsFilters.tsx
+│   └── index.ts
 └── index.ts
 ```
 
@@ -207,7 +209,19 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-// 复杂组件 Props
+// 实际项目中的组件 Props
+interface NavigationHeaderProps {
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
+  isMobileMenuOpen: boolean;
+  onMobileMenuToggle: () => void;
+}
+
+interface ChannelCardProps {
+  channel: ProductLaunchChannel;
+  onChannelClick?: (channel: ProductLaunchChannel) => void;
+}
+
 interface NewsCardProps {
   news: NewsItem;
   variant?: 'default' | 'compact' | 'featured';

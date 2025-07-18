@@ -16,94 +16,109 @@
 ```typescript
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// API 配置接口
-export interface ApiConfig {
-  baseURL: string;
-  timeout: number;
-  retryAttempts: number;
-  retryDelay: number;
-}
-
-// 默认配置
-export const defaultConfig: ApiConfig = {
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api',
-  timeout: 10000,
-  retryAttempts: 3,
-  retryDelay: 1000,
+// API配置
+export const API_CONFIG = {
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://api.example.com',
+  TIMEOUT: 10000,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000,
 };
 
-// 创建 Axios 实例
-export const createApiInstance = (config: Partial<ApiConfig> = {}): AxiosInstance => {
-  const finalConfig = { ...defaultConfig, ...config };
-  
-  const instance = axios.create({
-    baseURL: finalConfig.baseURL,
-    timeout: finalConfig.timeout,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+// 创建axios实例
+export const apiClient: AxiosInstance = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  // 请求拦截器
-  instance.interceptors.request.use(
-    (config) => {
-      // 添加认证 token
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      
-      // 添加请求 ID 用于追踪
-      config.headers['X-Request-ID'] = generateRequestId();
-      
-      // 记录请求日志
-      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
-      
-      return config;
-    },
-    (error) => {
-      console.error('[API Request Error]', error);
-      return Promise.reject(error);
+// 请求拦截器
+apiClient.interceptors.request.use(
+  (config: AxiosRequestConfig) => {
+    // 添加认证token
+    const token = localStorage.getItem('auth_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  );
-
-  // 响应拦截器
-  instance.interceptors.response.use(
-    (response) => {
-      console.log(`[API Response] ${response.status} ${response.config.url}`);
-      return response;
-    },
-    (error) => {
-      console.error('[API Response Error]', error);
-      
-      // 处理认证错误
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        window.location.href = '/login';
-      }
-      
-      return Promise.reject(error);
+    
+    // 添加请求时间戳
+    if (config.headers) {
+      config.headers['X-Request-Time'] = Date.now().toString();
     }
-  );
+    
+    console.log('🚀 API Request:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request Error:', error);
+    return Promise.reject(error);
+  }
+);
 
-  return instance;
-};
+// 响应拦截器
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => {
+    console.log('✅ API Response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('❌ Response Error:', error.response?.status, error.config?.url);
+    
+    // 处理认证错误
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
+    
+    // 处理网络错误
+    if (!error.response) {
+      console.error('Network Error: Please check your connection');
+    }
+    
+    return Promise.reject(error);
+  }
+);
+```
 ```
 
 ### 2. API 服务定义
 
-#### 通用接口定义 (`src/services/api/types.ts`)
+#### 通用接口定义 (`src/services/api/index.ts`)
 ```typescript
-// 基础响应接口
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data: T;
-  message?: string;
-  code?: string;
+export interface NewsItem {
+  id: number;
+  title: string;
+  summary: string;
+  link: string;
+  date: string;
+  views: number;
+  likes: number;
+  category?: string;
+  tags?: string[];
 }
 
-// 分页响应接口
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+export interface Channel {
+  id: string;
+  name: string;
+  icon: string;
+  updateTime: string;
+  articles: NewsItem[];
+  color: string;
+  bgGradient: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  success: boolean;
+  timestamp: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
   pagination: {
     page: number;
     limit: number;
@@ -111,93 +126,143 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     totalPages: number;
   };
 }
-
-// 请求参数接口
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  order?: 'asc' | 'desc';
-}
-
-export interface FilterParams {
-  search?: string;
-  category?: string;
-  status?: string;
-  dateFrom?: string;
-  dateTo?: string;
-}
 ```
 
-#### API 服务实现 (`src/services/api/index.ts`)
+#### API 服务实现
 ```typescript
-import { createApiInstance } from './config';
-import { ApiResponse, PaginatedResponse, PaginationParams, FilterParams } from './types';
+import { apiClient } from './config';
 
-const api = createApiInstance();
-
-// 新闻相关 API
+// 新闻相关API
 export const newsApi = {
-  // 获取新闻列表
-  getNews: async (params: PaginationParams & FilterParams): Promise<PaginatedResponse<NewsItem>> => {
-    const response = await api.get('/news', { params });
+  // 获取热门新闻
+  getHotNews: async (params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }): Promise<ApiResponse<PaginatedResponse<NewsItem>>> => {
+    const response = await apiClient.get('/news/hot', { params });
     return response.data;
   },
 
   // 获取新闻详情
-  getNewsById: async (id: string): Promise<ApiResponse<NewsItem>> => {
-    const response = await api.get(`/news/${id}`);
+  getNewsDetail: async (id: number): Promise<ApiResponse<NewsItem>> => {
+    const response = await apiClient.get(`/news/${id}`);
     return response.data;
   },
 
-  // 创建新闻
-  createNews: async (data: Partial<NewsItem>): Promise<ApiResponse<NewsItem>> => {
-    const response = await api.post('/news', data);
+  // 搜索新闻
+  searchNews: async (query: string, filters?: {
+    category?: string;
+    dateRange?: string;
+    sortBy?: 'date' | 'views' | 'likes';
+  }): Promise<ApiResponse<PaginatedResponse<NewsItem>>> => {
+    const response = await apiClient.get('/news/search', {
+      params: { q: query, ...filters }
+    });
     return response.data;
   },
 
-  // 更新新闻
-  updateNews: async (id: string, data: Partial<NewsItem>): Promise<ApiResponse<NewsItem>> => {
-    const response = await api.put(`/news/${id}`, data);
+  // 点赞新闻
+  likeNews: async (id: number): Promise<ApiResponse<{ likes: number }>> => {
+    const response = await apiClient.post(`/news/${id}/like`);
     return response.data;
   },
 
-  // 删除新闻
-  deleteNews: async (id: string): Promise<ApiResponse<void>> => {
-    const response = await api.delete(`/news/${id}`);
+  // 分享新闻
+  shareNews: async (id: number, platform: string): Promise<ApiResponse<{ shareUrl: string }>> => {
+    const response = await apiClient.post(`/news/${id}/share`, { platform });
     return response.data;
   },
 };
 
-// 频道相关 API
+// 频道相关API
 export const channelApi = {
+  // 获取所有频道
   getChannels: async (): Promise<ApiResponse<Channel[]>> => {
-    const response = await api.get('/channels');
+    const response = await apiClient.get('/channels');
     return response.data;
   },
 
-  getChannelById: async (id: string): Promise<ApiResponse<Channel>> => {
-    const response = await api.get(`/channels/${id}`);
+  // 获取频道详情
+  getChannelDetail: async (id: string): Promise<ApiResponse<Channel>> => {
+    const response = await apiClient.get(`/channels/${id}`);
+    return response.data;
+  },
+
+  // 订阅频道
+  subscribeChannel: async (id: string): Promise<ApiResponse<{ subscribed: boolean }>> => {
+    const response = await apiClient.post(`/channels/${id}/subscribe`);
+    return response.data;
+  },
+
+  // 取消订阅频道
+  unsubscribeChannel: async (id: string): Promise<ApiResponse<{ subscribed: boolean }>> => {
+    const response = await apiClient.delete(`/channels/${id}/subscribe`);
     return response.data;
   },
 };
 
-// 用户相关 API
+// 用户相关API
 export const userApi = {
-  login: async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
-    const response = await api.post('/auth/login', credentials);
+  // 用户登录
+  login: async (credentials: {
+    email: string;
+    password: string;
+  }): Promise<ApiResponse<{ token: string; user: any }>> => {
+    const response = await apiClient.post('/auth/login', credentials);
     return response.data;
   },
 
-  register: async (userData: RegisterData): Promise<ApiResponse<AuthResponse>> => {
-    const response = await api.post('/auth/register', userData);
+  // 用户注册
+  register: async (userData: {
+    email: string;
+    password: string;
+    name: string;
+  }): Promise<ApiResponse<{ token: string; user: any }>> => {
+    const response = await apiClient.post('/auth/register', userData);
     return response.data;
   },
 
-  getProfile: async (): Promise<ApiResponse<User>> => {
-    const response = await api.get('/auth/profile');
+  // 获取用户信息
+  getProfile: async (): Promise<ApiResponse<any>> => {
+    const response = await apiClient.get('/user/profile');
     return response.data;
   },
+
+  // 更新用户信息
+  updateProfile: async (userData: any): Promise<ApiResponse<any>> => {
+    const response = await apiClient.put('/user/profile', userData);
+    return response.data;
+  },
+
+  // 邮箱订阅
+  subscribe: async (email: string): Promise<ApiResponse<{ subscribed: boolean }>> => {
+    const response = await apiClient.post('/user/subscribe', { email });
+    return response.data;
+  },
+};
+
+// 统计相关API
+export const analyticsApi = {
+  // 获取热门趋势
+  getTrends: async (timeRange: '24h' | '7d' | '30d' = '24h'): Promise<ApiResponse<any[]>> => {
+    const response = await apiClient.get('/analytics/trends', {
+      params: { timeRange }
+    });
+    return response.data;
+  },
+
+  // 记录页面访问
+  trackPageView: async (page: string): Promise<void> => {
+    await apiClient.post('/analytics/pageview', { page });
+  },
+
+  // 记录事件
+  trackEvent: async (event: string, properties?: any): Promise<void> => {
+    await apiClient.post('/analytics/event', { event, properties });
+  },
+};
+```
 
   updateProfile: async (data: Partial<User>): Promise<ApiResponse<User>> => {
     const response = await api.put('/auth/profile', data);

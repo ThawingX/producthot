@@ -34,170 +34,237 @@
 ```
 src/
 ├── store/
-│   ├── index.ts              # 主 store 导出
-│   ├── slices/               # 状态切片
-│   │   ├── app.ts           # 应用全局状态
-│   │   ├── auth.ts          # 认证状态
-│   │   ├── news.ts          # 新闻状态
-│   │   ├── settings.ts      # 设置状态
-│   │   └── ui.ts            # UI 状态
-│   ├── middleware/          # 中间件
-│   │   ├── logger.ts        # 日志中间件
-│   │   ├── persist.ts       # 持久化中间件
-│   │   └── devtools.ts      # 开发工具中间件
-│   ├── types.ts             # 类型定义
-│   └── utils.ts             # 工具函数
+│   ├── index.ts              # 主 store 导出和组合
+│   ├── appStore.ts           # 应用全局状态 (tab管理、UI状态)
+│   ├── newsStore.ts          # 新闻数据状态
+│   ├── channelStore.ts       # 频道数据状态
+│   ├── userStore.ts          # 用户状态
+│   ├── types.ts              # 状态相关类型定义
+│   └── middleware/           # 中间件
+│       ├── persist.ts        # 持久化中间件
+│       └── devtools.ts       # 开发工具中间件
 ```
+
+### 实际项目架构说明
+
+当前项目采用多个独立的 Zustand store，每个 store 负责特定的业务领域：
+
+- **appStore**: 管理应用级状态（当前tab、移动端菜单状态等）
+- **newsStore**: 管理新闻数据和相关操作
+- **channelStore**: 管理频道数据和筛选
+- **userStore**: 管理用户相关状态
+
+这种架构的优势：
+- 职责分离清晰
+- 便于维护和测试
+- 支持按需加载
+- 减少不必要的重渲染
 
 ## Store 设计
 
-### 1. 基础 Store 结构
+### 1. 主应用 Store 结构
 
 ```typescript
-// store/slices/app.ts
+// store/index.ts - 主应用状态
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface AppState {
-  // 状态定义
+  // UI状态
   theme: 'light' | 'dark' | 'system';
   language: string;
   sidebarOpen: boolean;
   loading: boolean;
   
+  // 用户状态
+  user: any | null;
+  isAuthenticated: boolean;
+  
+  // 数据状态
+  news: NewsItem[];
+  channels: Channel[];
+  activeChannel: string | null;
+  searchQuery: string;
+  
   // 操作方法
-  setTheme: (theme: AppState['theme']) => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setLanguage: (language: string) => void;
   setSidebarOpen: (open: boolean) => void;
   setLoading: (loading: boolean) => void;
-  
-  // 复合操作
-  toggleSidebar: () => void;
+  setUser: (user: any) => void;
+  setNews: (news: NewsItem[]) => void;
+  setChannels: (channels: Channel[]) => void;
+  setActiveChannel: (channelId: string | null) => void;
+  setSearchQuery: (query: string) => void;
+  logout: () => void;
   reset: () => void;
 }
 
-const initialState = {
-  theme: 'system' as const,
-  language: 'zh-CN',
-  sidebarOpen: true,
-  loading: false,
-};
-
 export const useAppStore = create<AppState>()(
-  devtools(
+  persist(
     (set, get) => ({
-      ...initialState,
+      // 初始状态
+      theme: 'system',
+      language: 'zh-CN',
+      sidebarOpen: true,
+      loading: false,
+      user: null,
+      isAuthenticated: false,
+      news: [],
+      channels: [],
+      activeChannel: null,
+      searchQuery: '',
+
+      // 操作方法
+      setTheme: (theme) => set({ theme }),
+      setLanguage: (language) => set({ language }),
+      setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+      setLoading: (loading) => set({ loading }),
       
-      // 基础操作
-      setTheme: (theme) => set({ theme }, false, 'setTheme'),
-      setLanguage: (language) => set({ language }, false, 'setLanguage'),
-      setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }, false, 'setSidebarOpen'),
-      setLoading: (loading) => set({ loading }, false, 'setLoading'),
+      setUser: (user) => set({ 
+        user, 
+        isAuthenticated: !!user 
+      }),
       
-      // 复合操作
-      toggleSidebar: () => set(
-        (state) => ({ sidebarOpen: !state.sidebarOpen }),
-        false,
-        'toggleSidebar'
-      ),
+      setNews: (news) => set({ news }),
+      setChannels: (channels) => set({ channels }),
+      setActiveChannel: (activeChannel) => set({ activeChannel }),
+      setSearchQuery: (searchQuery) => set({ searchQuery }),
       
-      reset: () => set(initialState, false, 'reset'),
+      logout: () => set({ 
+        user: null, 
+        isAuthenticated: false 
+      }),
+      
+      reset: () => set({
+        news: [],
+        channels: [],
+        activeChannel: null,
+        searchQuery: '',
+        loading: false,
+      }),
     }),
     {
-      name: 'app-store',
+      name: 'app-storage',
+      partialize: (state) => ({
+        theme: state.theme,
+        language: state.language,
+        sidebarOpen: state.sidebarOpen,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
 ```
 
-### 2. 复杂状态管理
+### 2. 新闻状态管理
 
 ```typescript
-// store/slices/news.ts
-import { create } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { NewsItem, NewsFilter, SortOption } from '../../types';
-
+// 新闻相关状态
 interface NewsState {
-  // 数据状态
-  items: NewsItem[];
   favorites: number[];
   readHistory: number[];
   bookmarks: number[];
   
-  // UI 状态
-  filter: NewsFilter;
-  sortBy: SortOption;
-  searchQuery: string;
-  selectedCategory: string | null;
-  
-  // 加载状态
-  loading: boolean;
-  error: string | null;
-  
-  // 分页状态
-  currentPage: number;
-  totalPages: number;
-  hasMore: boolean;
-  
-  // 操作方法
-  setItems: (items: NewsItem[]) => void;
-  addItems: (items: NewsItem[]) => void;
-  updateItem: (id: number, updates: Partial<NewsItem>) => void;
-  removeItem: (id: number) => void;
-  
-  // 收藏操作
   addToFavorites: (id: number) => void;
   removeFromFavorites: (id: number) => void;
-  toggleFavorite: (id: number) => void;
-  
-  // 历史记录
   addToHistory: (id: number) => void;
-  clearHistory: () => void;
-  
-  // 书签操作
   addToBookmarks: (id: number) => void;
   removeFromBookmarks: (id: number) => void;
-  toggleBookmark: (id: number) => void;
-  
-  // 筛选和搜索
-  setFilter: (filter: Partial<NewsFilter>) => void;
-  setSortBy: (sortBy: SortOption) => void;
-  setSearchQuery: (query: string) => void;
-  setSelectedCategory: (category: string | null) => void;
-  
-  // 状态管理
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  
-  // 分页
-  setCurrentPage: (page: number) => void;
-  nextPage: () => void;
-  prevPage: () => void;
-  
-  // 计算属性
-  getFilteredItems: () => NewsItem[];
-  getFavoriteItems: () => NewsItem[];
-  getBookmarkedItems: () => NewsItem[];
-  
-  // 重置
-  reset: () => void;
+  clearHistory: () => void;
 }
 
-const initialState = {
-  items: [],
-  favorites: [],
-  readHistory: [],
-  bookmarks: [],
-  filter: {
-    category: null,
-    dateRange: null,
-    tags: [],
-  },
-  sortBy: 'date' as SortOption,
-  searchQuery: '',
-  selectedCategory: null,
-  loading: false,
+export const useNewsStore = create<NewsState>()(
+  persist(
+    (set, get) => ({
+      favorites: [],
+      readHistory: [],
+      bookmarks: [],
+      
+      addToFavorites: (id) => set((state) => ({
+        favorites: state.favorites.includes(id) 
+          ? state.favorites 
+          : [...state.favorites, id]
+      })),
+      
+      removeFromFavorites: (id) => set((state) => ({
+        favorites: state.favorites.filter(fId => fId !== id)
+      })),
+      
+      addToHistory: (id) => set((state) => {
+        const newHistory = [id, ...state.readHistory.filter(hId => hId !== id)];
+        return { readHistory: newHistory.slice(0, 100) }; // 限制历史记录数量
+      }),
+      
+      addToBookmarks: (id) => set((state) => ({
+        bookmarks: state.bookmarks.includes(id)
+          ? state.bookmarks
+          : [...state.bookmarks, id]
+      })),
+      
+      removeFromBookmarks: (id) => set((state) => ({
+        bookmarks: state.bookmarks.filter(bId => bId !== id)
+      })),
+      
+      clearHistory: () => set({ readHistory: [] }),
+    }),
+    {
+      name: 'news-storage',
+    }
+  )
+);
+```
+
+### 3. 设置状态管理
+
+```typescript
+interface SettingsState {
+  notifications: {
+    email: boolean;
+    push: boolean;
+    desktop: boolean;
+  };
+  preferences: {
+    autoRefresh: boolean;
+    refreshInterval: number;
+    compactView: boolean;
+    showImages: boolean;
+  };
+  
+  updateNotifications: (notifications: Partial<SettingsState['notifications']>) => void;
+  updatePreferences: (preferences: Partial<SettingsState['preferences']>) => void;
+}
+
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set) => ({
+      notifications: {
+        email: true,
+        push: true,
+        desktop: false,
+      },
+      preferences: {
+        autoRefresh: true,
+        refreshInterval: 300000, // 5分钟
+        compactView: false,
+        showImages: true,
+      },
+      
+      updateNotifications: (notifications) => set((state) => ({
+        notifications: { ...state.notifications, ...notifications }
+      })),
+      
+      updatePreferences: (preferences) => set((state) => ({
+        preferences: { ...state.preferences, ...preferences }
+      })),
+    }),
+    {
+      name: 'settings-storage',
+    }
+  )
+);
+```
   error: null,
   currentPage: 1,
   totalPages: 1,
