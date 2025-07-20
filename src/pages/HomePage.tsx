@@ -89,13 +89,12 @@ export const HomePage: React.FC = () => {
     fetchProductInsights 
   } = useProductInsights();
   
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes'>('date');
   const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
   
-  // 添加调试状态
-  const [debugInfo, setDebugInfo] = useState<string>('初始化中...');
+  // 添加错误状态
+  const [error, setError] = useState<string | null>(null);
   
   // 模拟数据 - 实际项目中会从API获取
   const mockChannels: Channel[] = [
@@ -192,14 +191,6 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     let filtered = [...news];
     
-    // 搜索筛选
-    if (searchQuery) {
-      filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.summary.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
     // 分类筛选
     if (selectedCategory) {
       filtered = filtered.filter(item => item.category === selectedCategory);
@@ -219,31 +210,25 @@ export const HomePage: React.FC = () => {
     });
     
     setFilteredNews(filtered);
-  }, [news, searchQuery, selectedCategory, sortBy]);
+  }, [news, selectedCategory, sortBy]);
   
   const loadData = async () => {
     console.log('🔥🔥🔥 loadData 函数开始执行 🔥🔥🔥');
     try {
       setLoading(true);
-      setDebugInfo('开始加载数据...');
+      setError(null); // 清除之前的错误
       
       console.log('🔄 开始加载新闻数据...');
       console.log('📡 API 基础 URL:', import.meta.env.VITE_API_BASE_URL || 'http://35.209.49.134:8030');
       
-      setDebugInfo('调用 API...');
-      
       // 调用新的 API 获取所有新闻数据
       const newsResponse = await newsApi.getNews({ lang: 'zh' });
-      
-      setDebugInfo(`API 响应成功: ${JSON.stringify(newsResponse).substring(0, 100)}...`);
       
       console.log('✅ API 响应成功:', newsResponse);
       
       // 转换数据格式 - 注意：现在需要访问 newsResponse.data
       const transformedNews = transformNewsResponse(newsResponse.data);
       setNews(transformedNews);
-      
-      setDebugInfo(`转换完成，共 ${transformedNews.length} 条新闻`);
       
       // 设置频道数据（基于 API 响应动态生成）
       const dynamicChannels: Channel[] = [
@@ -288,9 +273,10 @@ export const HomePage: React.FC = () => {
         trendings: newsResponse.data.trendings.length
       });
       
-      setDebugInfo(`加载完成！新闻: ${transformedNews.length}, 新产品: ${newsResponse.data.new_products.length}, Reddit: ${newsResponse.data.reddits.length}, 趋势: ${newsResponse.data.trendings.length}`);
-      
-      toast.success(`成功加载 ${transformedNews.length} 条新闻`);
+      // 只有在真正成功时才显示成功消息
+      if (transformedNews.length > 0) {
+        toast.success(`成功加载 ${transformedNews.length} 条新闻`);
+      }
       
     } catch (error) {
       console.error('❌ API 调用失败:', error);
@@ -301,15 +287,14 @@ export const HomePage: React.FC = () => {
         details: error.details
       });
       
-      setDebugInfo(`❌ 错误: ${error.message || '未知错误'} - 使用默认模拟数据`);
+      const errorMessage = error.message || '网络错误，请稍后重试';
+      setError(errorMessage);
       
-      // 注意：新的 API 已经在内部处理了错误并返回模拟数据
-      // 这里的 catch 块实际上不应该被执行，除非有其他错误
-      console.log('🔄 使用默认模拟数据作为最终后备');
+      // 使用模拟数据作为后备
+      console.log('🔄 使用默认模拟数据作为后备');
       setNews(mockNews);
       setChannels(mockChannels);
       
-      const errorMessage = error.message || '网络错误，已加载模拟数据';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -385,33 +370,41 @@ export const HomePage: React.FC = () => {
         structuredData={homeStructuredData}
       />
       <div className="space-y-6">
-      {/* 调试信息 */}
-      {debugInfo && (
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardContent className="py-3">
-            <div className="flex items-center space-x-2">
-              <span className="text-yellow-600 font-medium">🔍 调试信息:</span>
-              <span className="text-yellow-800">{debugInfo}</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* 错误提示 */}
+        {error && (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="py-3">
+              <div className="flex items-center space-x-2">
+                <span className="text-red-600 font-medium">❌ 错误:</span>
+                <span className="text-red-800">{error}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadData}
+                  className="ml-auto text-red-600 hover:text-red-800"
+                >
+                  重试
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('navigation.home')}</h1>
-          <p className="text-gray-600 mt-1">发现最新的产品和技术趋势</p>
+        {/* 页面标题 */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{t('navigation.home')}</h1>
+            <p className="text-gray-600 mt-1">发现最新的产品和技术趋势</p>
+          </div>
+          
+          <Button
+            onClick={loadData}
+            loading={loading || productInsightsLoading}
+            icon={<TrendingUp className="w-4 h-4" />}
+          >
+            {t('common.refresh')}
+          </Button>
         </div>
-        
-        <Button
-          onClick={loadData}
-          loading={loading || productInsightsLoading}
-          icon={<TrendingUp className="w-4 h-4" />}
-        >
-          {t('common.refresh')}
-        </Button>
-      </div>
       
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -454,8 +447,6 @@ export const HomePage: React.FC = () => {
       
       {/* 筛选器 */}
       <NewsFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
         sortBy={sortBy}

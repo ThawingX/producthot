@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, SortAsc, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import { Input, Button } from '../ui';
 
 interface NewsFiltersProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
   sortBy: 'date' | 'views' | 'likes';
@@ -14,8 +12,6 @@ interface NewsFiltersProps {
 }
 
 export const NewsFilters: React.FC<NewsFiltersProps> = ({
-  searchQuery,
-  onSearchChange,
   selectedCategory,
   onCategoryChange,
   sortBy,
@@ -32,45 +28,45 @@ export const NewsFilters: React.FC<NewsFiltersProps> = ({
   ];
   
   const clearFilters = () => {
-    onSearchChange('');
     onCategoryChange('');
     onSortChange('date');
   };
   
-  const hasActiveFilters = searchQuery || selectedCategory || sortBy !== 'date';
+  const hasActiveFilters = selectedCategory || sortBy !== 'date';
   
   return (
     <div className="space-y-4">
-      {/* 搜索栏 */}
-      <div className="flex items-center space-x-2">
-        <div className="flex-1">
-          <Input
-            placeholder={t('news.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            leftIcon={<Search className="w-4 h-4" />}
-            fullWidth
-          />
+      {/* 筛选器控制栏 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="secondary"
+            onClick={() => setShowFilters(!showFilters)}
+            icon={<Filter className="w-4 h-4" />}
+            className={showFilters ? 'bg-blue-50 text-blue-600' : ''}
+          >
+            {t('common.filter')}
+          </Button>
+          
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              onClick={clearFilters}
+              icon={<X className="w-4 h-4" />}
+              size="sm"
+            >
+              {t('common.reset')}
+            </Button>
+          )}
         </div>
         
-        <Button
-          variant="secondary"
-          onClick={() => setShowFilters(!showFilters)}
-          icon={<Filter className="w-4 h-4" />}
-          className={showFilters ? 'bg-blue-50 text-blue-600' : ''}
-        >
-          {t('common.filter')}
-        </Button>
-        
+        {/* 显示当前筛选状态 */}
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            onClick={clearFilters}
-            icon={<X className="w-4 h-4" />}
-            size="sm"
-          >
-            {t('common.reset')}
-          </Button>
+          <div className="text-sm text-gray-600">
+            {selectedCategory && `分类: ${t(`channels.${selectedCategory}`, selectedCategory)}`}
+            {selectedCategory && sortBy !== 'date' && ' | '}
+            {sortBy !== 'date' && `排序: ${sortOptions.find(opt => opt.value === sortBy)?.label}`}
+          </div>
         )}
       </div>
       
@@ -119,18 +115,6 @@ export const NewsFilters: React.FC<NewsFiltersProps> = ({
           {/* 活动筛选器标签 */}
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2">
-              {searchQuery && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {t('common.search')}: {searchQuery}
-                  <button
-                    onClick={() => onSearchChange('')}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )}
-              
               {selectedCategory && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   {t(`channels.${selectedCategory}`, selectedCategory)}

@@ -102,9 +102,9 @@ apiClient.interceptors.request.use(
     }
     
     // 添加用户代理
-    if (config.headers) {
-      config.headers['User-Agent'] = 'ProductHot/1.0';
-    }
+    // if (config.headers) {
+    //   config.headers['User-Agent'] = 'ProductHot/1.0';
+    // }
     
     // 添加环境标识
     if (config.headers) {
