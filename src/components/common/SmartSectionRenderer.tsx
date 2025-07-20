@@ -42,7 +42,7 @@ export const SmartSectionRenderer: React.FC<SmartSectionRendererProps> = ({
           <span className="text-sm text-gray-500">加载失败</span>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           <div className="col-span-full">
             <ErrorStateCard 
               title="加载失败"
@@ -67,7 +67,7 @@ export const SmartSectionRenderer: React.FC<SmartSectionRendererProps> = ({
         </span>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         {hasData ? (
           <>
             {/* 渲染实际数据 */}

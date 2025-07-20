@@ -26,20 +26,20 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   const remainingHeight = 6 - displayPosts.length;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3"
+            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
           />
         )}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{source.title}</h3>
-          <p className="text-sm text-gray-500 flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
+          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
+            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -81,14 +81,14 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
           <span className="flex items-center">
-            <TrendingUp className="w-4 h-4 mr-1" />
+            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.length} 个产品
           </span>
           <span className="flex items-center">
-            <Users className="w-4 h-4 mr-1" />
+            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总赞数
           </span>
         </div>
@@ -119,20 +119,20 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   const remainingHeight = 6 - displayPosts.length;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3"
+            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
           />
         )}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{source.title}</h3>
-          <p className="text-sm text-gray-500 flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
+          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
+            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -174,14 +174,14 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
           <span className="flex items-center">
-            <Users className="w-4 h-4 mr-1" />
+            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.length} 个讨论
           </span>
           <span className="flex items-center">
-            <TrendingUp className="w-4 h-4 mr-1" />
+            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总热度
           </span>
         </div>
@@ -212,20 +212,20 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   const remainingHeight = 6 - displayPosts.length;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3"
+            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
           />
         )}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{source.title}</h3>
-          <p className="text-sm text-gray-500 flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
+          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
+            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -267,14 +267,14 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between text-sm text-gray-500">
+      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
           <span className="flex items-center">
-            <TrendingUp className="w-4 h-4 mr-1" />
+            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.length} 个趋势
           </span>
           <span className="flex items-center">
-            <Users className="w-4 h-4 mr-1" />
+            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总热度
           </span>
         </div>
@@ -291,12 +291,24 @@ export const ProductNewsPage: React.FC = () => {
   }, [refreshData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">产品资讯</h1>
-          <p className="text-gray-600">获取最新的产品发布、讨论和趋势信息</p>
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">产品资讯</h1>
+          <p className="text-gray-600 text-sm lg:text-base mb-4">获取最新的产品发布、讨论和趋势信息</p>
+          
+          {/* 搜索提示 */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center space-x-2 text-blue-700">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="text-sm font-medium">
+                💡 搜索提示：使用 <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">Ctrl+F</kbd> (Windows) 或 <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">Cmd+F</kbd> (Mac) 在当前页面搜索内容
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* 产品发布部分 */}
