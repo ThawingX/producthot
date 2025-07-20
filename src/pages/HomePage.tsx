@@ -3,8 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { TrendingUp, Zap, Users, Calendar } from 'lucide-react';
 import { NewsCard, NewsFilters } from '../components/news';
 import { Card, CardHeader, CardTitle, CardContent, Loading, Button } from '../components/ui';
+import { SEO, StructuredDataGenerator } from '../components/seo';
 import { useAppStore } from '../store';
 import { newsApi, channelApi, NewsItem, Channel } from '../services/api';
+import { PAGE_SEO_CONFIG } from '../config/seo';
+import { SEO_KEYWORDS } from '../config/keywords';
 import { toast } from 'react-hot-toast';
 
 export const HomePage: React.FC = () => {
@@ -193,16 +196,44 @@ export const HomePage: React.FC = () => {
   
   const categories = Array.from(new Set(news.map(item => item.category).filter(Boolean)));
   
+  // 生成首页结构化数据
+  const homeStructuredData = StructuredDataGenerator.generateCollectionPage({
+    name: PAGE_SEO_CONFIG.HOME.title,
+    description: PAGE_SEO_CONFIG.HOME.description,
+    url: window.location.href,
+    items: filteredNews.slice(0, 10).map(item => ({
+      name: item.title,
+      url: `${window.location.origin}/news/${item.id}`
+    }))
+  });
+  
   if (loading && news.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <Loading size="lg" text={t('common.loading')} />
-      </div>
+      <>
+        <SEO
+          title={PAGE_SEO_CONFIG.HOME.title}
+          description={PAGE_SEO_CONFIG.HOME.description}
+          keywords={PAGE_SEO_CONFIG.HOME.keywords}
+          type={PAGE_SEO_CONFIG.HOME.type as any}
+          structuredData={homeStructuredData}
+        />
+        <div className="flex items-center justify-center min-h-96">
+          <Loading size="lg" text={t('common.loading')} />
+        </div>
+      </>
     );
   }
   
   return (
-    <div className="space-y-6">
+    <>
+      <SEO
+        title={PAGE_SEO_CONFIG.HOME.title}
+        description={PAGE_SEO_CONFIG.HOME.description}
+        keywords={PAGE_SEO_CONFIG.HOME.keywords}
+        type={PAGE_SEO_CONFIG.HOME.type as any}
+        structuredData={homeStructuredData}
+      />
+      <div className="space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
@@ -299,5 +330,6 @@ export const HomePage: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
