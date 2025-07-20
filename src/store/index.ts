@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { NewsItem, Channel } from '../services/api';
+import { NewsItem, Channel, NewsResponse, ProductItem, RedditDiscussion, TrendingItem } from '../services/api';
 
 // 应用状态接口
 interface AppState {
@@ -20,6 +20,11 @@ interface AppState {
   activeChannel: string | null;
   searchQuery: string;
   
+  // 产品资讯状态
+  productInsights: NewsResponse | null;
+  productInsightsLoading: boolean;
+  productInsightsError: string | null;
+  
   // 操作方法
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setLanguage: (language: string) => void;
@@ -30,6 +35,12 @@ interface AppState {
   setChannels: (channels: Channel[]) => void;
   setActiveChannel: (channelId: string | null) => void;
   setSearchQuery: (query: string) => void;
+  
+  // 产品资讯相关方法
+  setProductInsights: (data: NewsResponse) => void;
+  setProductInsightsLoading: (loading: boolean) => void;
+  setProductInsightsError: (error: string | null) => void;
+  
   logout: () => void;
   reset: () => void;
 }
@@ -49,6 +60,11 @@ export const useAppStore = create<AppState>()(
       channels: [],
       activeChannel: null,
       searchQuery: '',
+      
+      // 产品资讯初始状态
+      productInsights: null,
+      productInsightsLoading: false,
+      productInsightsError: null,
 
       // 操作方法
       setTheme: (theme) => set({ theme }),
@@ -66,6 +82,11 @@ export const useAppStore = create<AppState>()(
       setActiveChannel: (activeChannel) => set({ activeChannel }),
       setSearchQuery: (searchQuery) => set({ searchQuery }),
       
+      // 产品资讯相关方法
+      setProductInsights: (productInsights) => set({ productInsights }),
+      setProductInsightsLoading: (productInsightsLoading) => set({ productInsightsLoading }),
+      setProductInsightsError: (productInsightsError) => set({ productInsightsError }),
+      
       logout: () => set({ 
         user: null, 
         isAuthenticated: false 
@@ -77,6 +98,9 @@ export const useAppStore = create<AppState>()(
         activeChannel: null,
         searchQuery: '',
         loading: false,
+        productInsights: null,
+        productInsightsLoading: false,
+        productInsightsError: null,
       }),
     }),
     {

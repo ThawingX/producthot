@@ -5,19 +5,97 @@ import { NewsCard, NewsFilters } from '../components/news';
 import { Card, CardHeader, CardTitle, CardContent, Loading, Button } from '../components/ui';
 import { SEO, StructuredDataGenerator } from '../components/seo';
 import { useAppStore } from '../store';
-import { newsApi, channelApi, NewsItem, Channel } from '../services/api';
+import { newsApi, channelApi, NewsItem, Channel, NewsResponse, NewsSource } from '../services/api';
+import { useProductInsights } from '../hooks/useProductInsights';
 import { PAGE_SEO_CONFIG } from '../config/seo';
 import { SEO_KEYWORDS } from '../config/keywords';
 import { toast } from 'react-hot-toast';
+
+// 数据转换函数：将 API 响应转换为 UI 组件使用的格式
+const transformNewsResponse = (newsResponse: NewsResponse): NewsItem[] => {
+  console.log('🔄 开始转换 API 响应数据:', newsResponse);
+  
+  const allNews: NewsItem[] = [];
+  let idCounter = 1;
+
+  // 转换新产品数据
+  console.log('📦 处理新产品发布数据:', newsResponse.new_products);
+  newsResponse.new_products.forEach((source: NewsSource) => {
+    source.posts.forEach(post => {
+      allNews.push({
+        id: idCounter++,
+        title: post.title,
+        summary: post.description,
+        link: post.url,
+        date: new Date(source.update_time).toLocaleString('zh-CN'),
+        views: Math.floor(Math.random() * 1000) + 100, // 模拟浏览量
+        likes: post.upvotes,
+        category: 'new_products',
+        tags: [source.title]
+      });
+    });
+  });
+
+  // 转换 Reddit 数据
+  console.log('💬 处理 Reddit 讨论数据:', newsResponse.reddits);
+  newsResponse.reddits.forEach((source: NewsSource) => {
+    source.posts.forEach(post => {
+      allNews.push({
+        id: idCounter++,
+        title: post.title,
+        summary: post.description,
+        link: post.url,
+        date: new Date(source.update_time).toLocaleString('zh-CN'),
+        views: Math.floor(Math.random() * 1000) + 100,
+        likes: post.upvotes,
+        category: 'reddits',
+        tags: [source.title]
+      });
+    });
+  });
+
+  // 转换趋势数据
+  console.log('📈 处理趋势热点数据:', newsResponse.trendings);
+  newsResponse.trendings.forEach((source: NewsSource) => {
+    source.posts.forEach(post => {
+      allNews.push({
+        id: idCounter++,
+        title: post.title,
+        summary: post.description,
+        link: post.url,
+        date: new Date(source.update_time).toLocaleString('zh-CN'),
+        views: Math.floor(Math.random() * 1000) + 100,
+        likes: post.upvotes,
+        category: 'trendings',
+        tags: [source.title]
+      });
+    });
+  });
+
+  console.log('✅ 数据转换完成，总计:', allNews.length, '条新闻');
+  console.log('📋 转换后的数据:', allNews);
+  
+  return allNews;
+};
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { news, setNews, channels, setChannels, loading, setLoading } = useAppStore();
   
+  // 添加产品资讯数据获取
+  const { 
+    data: productInsights, 
+    isLoading: productInsightsLoading, 
+    fetchProductInsights 
+  } = useProductInsights();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes'>('date');
   const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
+  
+  // 添加调试状态
+  const [debugInfo, setDebugInfo] = useState<string>('初始化中...');
   
   // 模拟数据 - 实际项目中会从API获取
   const mockChannels: Channel[] = [
@@ -105,6 +183,8 @@ export const HomePage: React.FC = () => {
   
   // 加载数据
   useEffect(() => {
+    console.log('🚀 HomePage useEffect 被调用');
+    setDebugInfo('useEffect 开始执行...');
     loadData();
   }, []);
   
@@ -142,24 +222,95 @@ export const HomePage: React.FC = () => {
   }, [news, searchQuery, selectedCategory, sortBy]);
   
   const loadData = async () => {
+    console.log('🔥🔥🔥 loadData 函数开始执行 🔥🔥🔥');
     try {
       setLoading(true);
+      setDebugInfo('开始加载数据...');
       
-      // 在实际项目中，这里会调用真实的API
-      // const [newsResponse, channelsResponse] = await Promise.all([
-      //   newsApi.getHotNews(),
-      //   channelApi.getChannels()
-      // ]);
+      console.log('🔄 开始加载新闻数据...');
+      console.log('📡 API 基础 URL:', import.meta.env.VITE_API_BASE_URL || 'http://35.209.49.134:8030');
       
-      // 模拟API延迟
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setDebugInfo('调用 API...');
       
+      // 调用新的 API 获取所有新闻数据
+      const newsResponse = await newsApi.getNews({ lang: 'zh' });
+      
+      setDebugInfo(`API 响应成功: ${JSON.stringify(newsResponse).substring(0, 100)}...`);
+      
+      console.log('✅ API 响应成功:', newsResponse);
+      
+      // 转换数据格式 - 注意：现在需要访问 newsResponse.data
+      const transformedNews = transformNewsResponse(newsResponse.data);
+      setNews(transformedNews);
+      
+      setDebugInfo(`转换完成，共 ${transformedNews.length} 条新闻`);
+      
+      // 设置频道数据（基于 API 响应动态生成）
+      const dynamicChannels: Channel[] = [
+        {
+          id: 'new_products',
+          name: '新产品发布',
+          icon: 'zap',
+          updateTime: newsResponse.data.new_products[0]?.update_time ? 
+            new Date(newsResponse.data.new_products[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#FF6154',
+          bgGradient: 'from-orange-500/20 to-red-500/20',
+          articles: transformedNews.filter(item => item.category === 'new_products')
+        },
+        {
+          id: 'reddits',
+          name: 'Reddit 讨论',
+          icon: 'users',
+          updateTime: newsResponse.data.reddits[0]?.update_time ? 
+            new Date(newsResponse.data.reddits[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#FF4500',
+          bgGradient: 'from-red-500/20 to-orange-500/20',
+          articles: transformedNews.filter(item => item.category === 'reddits')
+        },
+        {
+          id: 'trendings',
+          name: '趋势热点',
+          icon: 'trending-up',
+          updateTime: newsResponse.data.trendings[0]?.update_time ? 
+            new Date(newsResponse.data.trendings[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#00D084',
+          bgGradient: 'from-green-500/20 to-emerald-500/20',
+          articles: transformedNews.filter(item => item.category === 'trendings')
+        }
+      ];
+      
+      setChannels(dynamicChannels);
+      
+      console.log('✅ 成功加载新闻数据:', {
+        totalNews: transformedNews.length,
+        newProducts: newsResponse.data.new_products.length,
+        reddits: newsResponse.data.reddits.length,
+        trendings: newsResponse.data.trendings.length
+      });
+      
+      setDebugInfo(`加载完成！新闻: ${transformedNews.length}, 新产品: ${newsResponse.data.new_products.length}, Reddit: ${newsResponse.data.reddits.length}, 趋势: ${newsResponse.data.trendings.length}`);
+      
+      toast.success(`成功加载 ${transformedNews.length} 条新闻`);
+      
+    } catch (error) {
+      console.error('❌ API 调用失败:', error);
+      console.error('❌ 错误详情:', {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        details: error.details
+      });
+      
+      setDebugInfo(`❌ 错误: ${error.message || '未知错误'} - 使用默认模拟数据`);
+      
+      // 注意：新的 API 已经在内部处理了错误并返回模拟数据
+      // 这里的 catch 块实际上不应该被执行，除非有其他错误
+      console.log('🔄 使用默认模拟数据作为最终后备');
       setNews(mockNews);
       setChannels(mockChannels);
       
-    } catch (error) {
-      console.error('Failed to load data:', error);
-      toast.error(t('errors.networkError'));
+      const errorMessage = error.message || '网络错误，已加载模拟数据';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -172,8 +323,8 @@ export const HomePage: React.FC = () => {
   
   const handleNewsLike = async (id: number) => {
     try {
-      // 在实际项目中，这里会调用API
-      // await newsApi.likeNews(id);
+      // 调用真实的 API
+      await newsApi.likeNews(id);
       
       // 更新本地状态
       const updatedNews = news.map(item =>
@@ -207,7 +358,7 @@ export const HomePage: React.FC = () => {
     }))
   });
   
-  if (loading && news.length === 0) {
+  if ((loading && news.length === 0) || productInsightsLoading) {
     return (
       <>
         <SEO
@@ -234,6 +385,18 @@ export const HomePage: React.FC = () => {
         structuredData={homeStructuredData}
       />
       <div className="space-y-6">
+      {/* 调试信息 */}
+      {debugInfo && (
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardContent className="py-3">
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-600 font-medium">🔍 调试信息:</span>
+              <span className="text-yellow-800">{debugInfo}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
@@ -243,7 +406,7 @@ export const HomePage: React.FC = () => {
         
         <Button
           onClick={loadData}
-          loading={loading}
+          loading={loading || productInsightsLoading}
           icon={<TrendingUp className="w-4 h-4" />}
         >
           {t('common.refresh')}

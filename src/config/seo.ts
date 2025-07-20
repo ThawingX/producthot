@@ -3,18 +3,18 @@ import { SEO_KEYWORDS } from './keywords';
 
 export const SEO_CONFIG = {
   // 网站基本信息
-  SITE_NAME: 'SnapSeeker',
-  SITE_URL: process.env.VITE_SITE_URL || 'https://snapseeker.com',
-  DEFAULT_TITLE: 'SnapSeeker - 发现最新科技产品与创新资讯',
+  SITE_NAME: 'ProductHot',
+  SITE_URL: process.env.VITE_SITE_URL || 'https://producthot.top',
+  DEFAULT_TITLE: 'ProductHot - 发现最新科技产品与创新资讯',
   DEFAULT_DESCRIPTION: '聚合ProductHunt、HackerNews、GitHub、Reddit、TechCrunch等平台的最新科技产品发布和创新资讯，为产品经理、创业者和科技爱好者提供一站式产品发现平台。',
   DEFAULT_KEYWORDS: SEO_KEYWORDS.PRIMARY,
   
   // 社交媒体配置
   SOCIAL: {
-    TWITTER_HANDLE: '@SnapSeeker',
-    FACEBOOK_PAGE: 'SnapSeeker',
-    LINKEDIN_PAGE: 'company/snapseeker',
-    GITHUB_ORG: 'SnapSeeker'
+    TWITTER_HANDLE: '@ProductHot',
+    FACEBOOK_PAGE: 'ProductHot',
+    LINKEDIN_PAGE: 'company/producthot',
+    GITHUB_ORG: 'ProductHot'
   },
   
   // 图片和媒体资源
@@ -26,8 +26,8 @@ export const SEO_CONFIG = {
   },
   
   // 作者和组织信息
-  AUTHOR: 'SnapSeeker Team',
-  COPYRIGHT: `© ${new Date().getFullYear()} SnapSeeker. All rights reserved.`,
+  AUTHOR: 'ProductHot Team',
+  COPYRIGHT: `© ${new Date().getFullYear()} ProductHot. All rights reserved.`,
   
   // 搜索引擎验证码（需要实际申请后填入）
   VERIFICATION: {
@@ -50,32 +50,32 @@ export const SEO_CONFIG = {
     ORGANIZATION: {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      'name': 'SnapSeeker',
-      'url': 'https://snapseeker.com',
-      'logo': 'https://snapseeker.com/images/logo.png',
+      'name': 'ProductHot',
+      'url': 'https://producthot.top',
+      'logo': 'https://producthot.top/images/logo.png',
       'description': '专业的科技产品发现与资讯聚合平台',
       'foundingDate': '2024',
       'sameAs': [
-        'https://twitter.com/SnapSeeker',
-        'https://github.com/SnapSeeker',
-        'https://linkedin.com/company/snapseeker'
+        'https://twitter.com/ProductHot',
+        'https://github.com/ProductHot',
+        'https://linkedin.com/company/producthot'
       ],
       'contactPoint': {
         '@type': 'ContactPoint',
         'contactType': 'customer service',
-        'email': 'contact@snapseeker.com'
+        'email': 'contact@producthot.top'
       }
     },
     
     WEBSITE: {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      'name': 'SnapSeeker',
-      'url': 'https://snapseeker.com',
+      'name': 'ProductHot',
+      'url': 'https://producthot.top',
       'description': '发现最新科技产品与创新资讯的专业平台',
       'potentialAction': {
         '@type': 'SearchAction',
-        'target': 'https://snapseeker.com/search?q={search_term_string}',
+        'target': 'https://producthot.top/search?q={search_term_string}',
         'query-input': 'required name=search_term_string'
       }
     }
@@ -115,7 +115,7 @@ export const SEO_CONFIG = {
       '/*.json$',
       '/temp/'
     ],
-    SITEMAP: 'https://snapseeker.com/sitemap.xml'
+    SITEMAP: 'https://producthot.top/sitemap.xml'
   },
   
   // 页面性能配置
@@ -141,7 +141,7 @@ export const SEO_CONFIG = {
 // 页面级别的SEO配置
 export const PAGE_SEO_CONFIG = {
   HOME: {
-    title: 'SnapSeeker - 发现最新科技产品与创新资讯',
+    title: 'ProductHot - 发现最新科技产品与创新资讯',
     description: '聚合ProductHunt、HackerNews、GitHub、Reddit、TechCrunch等平台的最新科技产品发布和创新资讯，为产品经理、创业者和科技爱好者提供一站式产品发现平台。',
     keywords: [...SEO_KEYWORDS.PRIMARY, ...SEO_KEYWORDS.BRAND],
     type: 'website'

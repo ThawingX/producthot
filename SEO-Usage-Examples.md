@@ -238,7 +238,7 @@ export const BreadcrumbPage: React.FC<BreadcrumbPageProps> = ({ breadcrumbs }) =
 ### 2. 标题优化
 ```typescript
 // ✅ 好的标题
-"Notion AI 2.0 正式发布 - 产品资讯 | SnapSeeker"
+"Notion AI 2.0 正式发布 - 产品资讯 | ProductHot"
 
 // ❌ 避免的标题
 "页面标题页面标题页面标题页面标题页面标题页面标题"

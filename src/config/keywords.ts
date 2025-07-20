@@ -32,7 +32,7 @@ export const SEO_KEYWORDS = {
 
   // 品牌相关关键词
   BRAND: [
-    'SnapSeeker',
+    'ProductHot',
     '产品发现平台',
     '科技资讯聚合',
     '产品资讯平台'
@@ -158,22 +158,22 @@ export const SEO_KEYWORDS = {
 // SEO配置常量
 export const SEO_CONFIG = {
   // 网站基本信息
-  SITE_NAME: 'SnapSeeker',
-  SITE_URL: 'https://snapseeker.com',
-  DEFAULT_TITLE: 'SnapSeeker - 发现最新科技产品与创新资讯',
+  SITE_NAME: 'ProductHot',
+  SITE_URL: 'https://producthot.top',
+  DEFAULT_TITLE: 'ProductHot - 发现最新科技产品与创新资讯',
   DEFAULT_DESCRIPTION: '聚合ProductHunt、HackerNews、GitHub、Reddit、TechCrunch等平台的最新科技产品发布和创新资讯，为产品经理、创业者和科技爱好者提供一站式产品发现平台。',
   DEFAULT_KEYWORDS: SEO_KEYWORDS.PRIMARY,
   
   // 社交媒体
-  TWITTER_HANDLE: '@SnapSeeker',
-  FACEBOOK_PAGE: 'SnapSeeker',
+  TWITTER_HANDLE: '@ProductHot',
+  FACEBOOK_PAGE: 'ProductHot',
   
   // 图片和媒体
-  DEFAULT_IMAGE: 'https://snapseeker.com/images/og-image.jpg',
-  LOGO_URL: 'https://snapseeker.com/images/logo.png',
+  DEFAULT_IMAGE: 'https://producthot.top/images/og-image.jpg',
+  LOGO_URL: 'https://producthot.top/images/logo.png',
   
   // 作者信息
-  AUTHOR: 'SnapSeeker Team',
+  AUTHOR: 'ProductHot Team',
   
   // 搜索引擎验证码（需要实际申请后填入）
   GOOGLE_VERIFICATION: 'your-google-verification-code',
@@ -187,14 +187,14 @@ export const SEO_CONFIG = {
   // 结构化数据
   ORGANIZATION: {
     '@type': 'Organization',
-    'name': 'SnapSeeker',
-    'url': 'https://snapseeker.com',
-    'logo': 'https://snapseeker.com/images/logo.png',
+    'name': 'ProductHot',
+    'url': 'https://producthot.top',
+    'logo': 'https://producthot.top/images/logo.png',
     'description': '专业的科技产品发现与资讯聚合平台',
     'foundingDate': '2024',
     'sameAs': [
-      'https://twitter.com/SnapSeeker',
-      'https://github.com/SnapSeeker'
+      'https://twitter.com/ProductHot',
+      'https://github.com/ProductHot'
     ]
   }
 };
@@ -277,7 +277,7 @@ export const PAGE_KEYWORDS = {
 export const CONTENT_OPTIMIZATION = {
   // 标题优化模板
   TITLE_TEMPLATES: [
-    '{keyword} - {description} | SnapSeeker',
+    '{keyword} - {description} | ProductHot',
     '最新{keyword}资讯 - {description}',
     '{keyword}推荐：{description}',
     '发现{keyword} - {description}平台'
@@ -285,7 +285,7 @@ export const CONTENT_OPTIMIZATION = {
   
   // 描述优化模板
   DESCRIPTION_TEMPLATES: [
-    '发现最新的{keyword}，包括{features}。在SnapSeeker获取{source}等平台的{category}资讯。',
+    '发现最新的{keyword}，包括{features}。在ProductHot获取{source}等平台的{category}资讯。',
     '专业的{keyword}聚合平台，实时更新{source}的{category}信息，为{audience}提供最新资讯。',
     '一站式{keyword}发现平台，聚合{source}等优质内容源，助您把握{category}趋势。'
   ],
