@@ -1,21 +1,21 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Bell, Menu, X } from 'lucide-react';
 import { TabType } from '../../types';
 import logoSvg from '/logo.svg';
 
 interface NavigationHeaderProps {
   activeTab: TabType;
-  setActiveTab: (tab: TabType) => void;
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   activeTab,
-  setActiveTab,
   isMobileMenuOpen,
   setIsMobileMenuOpen
 }) => {
+  const navigate = useNavigate();
   return (
     <header className="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-xl liquid-glass bg-white/80 border-white/20">
       <div className="px-6 py-4 mx-auto max-w-7xl">
@@ -31,7 +31,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-2 md:flex">
             <button
-              onClick={() => setActiveTab('news')}
+              onClick={() => navigate('/')}
               className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
                 activeTab === 'news'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -41,7 +41,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
               产品资讯集合
             </button>
             <button
-              onClick={() => setActiveTab('analysis')}
+              onClick={() => navigate('/clue-analysis')}
               className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
                 activeTab === 'analysis'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
@@ -74,7 +74,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             <nav className="flex flex-col mt-4 space-y-2">
               <button
                 onClick={() => {
-                  setActiveTab('news');
+                  navigate('/');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`px-4 py-3 rounded-2xl font-medium text-left transition-all duration-300 ${
@@ -87,7 +87,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
               </button>
               <button
                 onClick={() => {
-                  setActiveTab('analysis');
+                  navigate('/clue-analysis');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`px-4 py-3 rounded-2xl font-medium text-left transition-all duration-300 ${

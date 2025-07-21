@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState, SmartSectionRenderer } from '../components/common';
 import { useProductInsights } from '../hooks/useProductInsights';
 import { NewsSource } from '../services/api';
@@ -437,6 +438,7 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 };
 
 export const ProductNewsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { data, isLoading, error, hasData, refreshData } = useProductInsights();
 
   useEffect(() => {
@@ -455,12 +457,21 @@ export const ProductNewsPage: React.FC = () => {
               <span className="font-semibold">ProductHot</span> 严选全球前沿资讯，为您聚合Product Hunt、Reddit、Hacker News 和各类社区的最新产品发布、讨论热点与新兴趋势。
             </p>
             <div className="p-4 mb-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
-              <h3 className="mb-2 text-lg font-semibold text-gray-800">AI驱动的<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">线索识别与拆解工作台</span></h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-gray-800">AI驱动的<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">线索识别与拆解工作台</span></h3>
+                <span 
+                  className="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
+                  onClick={() => navigate('/clue-analysis')}
+                >
+                  查看详情
+                  <ExternalLink className="ml-1 w-3 h-3" />
+                </span>
+              </div>
               <p className="mb-3 text-gray-700">
-                我们不仅是信息的聚合，更是您的智能决策助手。在信息过载的时代，我们打造了一个专业的线索识别分析工作台，将海量数据转化为可执行的产品洞察。
+                我们不仅是信息的聚合，更是您的需求提取助手。在信息过载的时代，我们打造了一个专业的线索识别分析工作台，将海量数据转化为可执行的产品洞察。
               </p>
               <div className="grid grid-cols-1 gap-3 mb-2 md:grid-cols-3">
-                <div className="flex items-start space-x-2 p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-300">
+                <div className="flex items-start p-2 space-x-2 bg-purple-50 rounded-lg transition-colors duration-300 hover:bg-purple-100">
                   <div className="p-1.5 bg-purple-100 rounded-md shadow-sm">
                     <Brain className="w-4 h-4 text-purple-600" />
                   </div>
@@ -469,7 +480,7 @@ export const ProductNewsPage: React.FC = () => {
                     <p className="text-xs text-gray-600">严格基于实际产品数据和用户讨论，杜绝AI幻觉，确保每一条线索都有据可循</p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-2 p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
+                <div className="flex items-start p-2 space-x-2 bg-blue-50 rounded-lg transition-colors duration-300 hover:bg-blue-100">
                   <div className="p-1.5 bg-blue-100 rounded-md shadow-sm">
                     <Target className="w-4 h-4 text-blue-600" />
                   </div>
@@ -478,7 +489,7 @@ export const ProductNewsPage: React.FC = () => {
                     <p className="text-xs text-gray-600">采用权威B2B线索识别方法论，提供专业的横向赋能，助您精准把握市场机会</p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-2 p-2 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors duration-300">
+                <div className="flex items-start p-2 space-x-2 bg-teal-50 rounded-lg transition-colors duration-300 hover:bg-teal-100">
                   <div className="p-1.5 bg-teal-100 rounded-md shadow-sm">
                     <Zap className="w-4 h-4 text-teal-600" />
                   </div>
