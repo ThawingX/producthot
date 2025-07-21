@@ -21,7 +21,7 @@ export const SEO_CONFIG = {
   MEDIA: {
     DEFAULT_IMAGE: '/images/og-image.jpg',
     LOGO_URL: '/images/logo.png',
-    FAVICON: '/favicon.ico',
+    FAVICON: '/fav.ico',
     APPLE_TOUCH_ICON: '/images/apple-touch-icon.png'
   },
   

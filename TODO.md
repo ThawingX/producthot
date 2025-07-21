@@ -9,5 +9,5 @@
 - [x] 删除mock数据
 - [x] 样式优化
 - [x] 标题可点击，链接可分享
-- [] 分享功能完善
 - [x] sitemap robots.txt
+- [x] logo
