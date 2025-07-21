@@ -457,26 +457,35 @@ export const ProductNewsPage: React.FC = () => {
             <div className="p-4 mb-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
               <h3 className="mb-2 text-lg font-semibold text-gray-800">AI驱动的<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">线索识别与拆解工作台</span></h3>
               <p className="mb-3 text-gray-700">
-                我们不仅是信息的聚合，更是您的信息过滤器。在当前信息过载的时代，我们提供了基于资讯，讨论，产品的线索识别分析工作台，为您提供实时，精准，高效的产品需求线索识别和拆解。
+                我们不仅是信息的聚合，更是您的智能决策助手。在信息过载的时代，我们打造了一个专业的线索识别分析工作台，将海量数据转化为可执行的产品洞察。
               </p>
               <div className="grid grid-cols-1 gap-3 mb-2 md:grid-cols-3">
-                <div className="flex items-start space-x-2">
-                  <div className="p-1 bg-purple-100 rounded-md">
+                <div className="flex items-start space-x-2 p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-300">
+                  <div className="p-1.5 bg-purple-100 rounded-md shadow-sm">
                     <Brain className="w-4 h-4 text-purple-600" />
                   </div>
-                  <p className="text-sm text-gray-600">真实性：基于实际产品和帖子，杜绝AI幻觉</p>
+                  <div>
+                    <h4 className="text-sm font-medium text-purple-800 mb-0.5">真实可靠</h4>
+                    <p className="text-xs text-gray-600">严格基于实际产品数据和用户讨论，杜绝AI幻觉，确保每一条线索都有据可循</p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="p-1 bg-blue-100 rounded-md">
+                <div className="flex items-start space-x-2 p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
+                  <div className="p-1.5 bg-blue-100 rounded-md shadow-sm">
                     <Target className="w-4 h-4 text-blue-600" />
                   </div>
-                  <p className="text-sm text-gray-600">专业性：基于权威B2B线索识别和拆解的横向赋能</p>
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-800 mb-0.5">专业赋能</h4>
+                    <p className="text-xs text-gray-600">采用权威B2B线索识别方法论，提供专业的横向赋能，助您精准把握市场机会</p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="p-1 bg-teal-100 rounded-md">
+                <div className="flex items-start space-x-2 p-2 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors duration-300">
+                  <div className="p-1.5 bg-teal-100 rounded-md shadow-sm">
                     <Zap className="w-4 h-4 text-teal-600" />
                   </div>
-                  <p className="text-sm text-gray-600">高效性：数据来源和工作台一体化，提升效率</p>
+                  <div>
+                    <h4 className="text-sm font-medium text-teal-800 mb-0.5">高效一体</h4>
+                    <p className="text-xs text-gray-600">数据来源与分析工作台无缝集成，一站式完成从信息获取到线索拆解的全流程</p>
+                  </div>
                 </div>
               </div>
             </div>
