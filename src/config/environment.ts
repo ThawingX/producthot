@@ -45,7 +45,7 @@ export interface EnvironmentConfig {
 const developmentConfig: EnvironmentConfig = {
   api: {
     baseUrl: 'http://api.producthot.top:8030',
-    timeout: 15000,
+    timeout: 60000,
     retryAttempts: 2,
     retryDelay: 1000,
   },
@@ -76,7 +76,7 @@ const developmentConfig: EnvironmentConfig = {
 const stagingConfig: EnvironmentConfig = {
   api: {
     baseUrl: 'https://staging-api.producthot.top',
-    timeout: 12000,
+    timeout: 60000,
     retryAttempts: 3,
     retryDelay: 1500,
   },
@@ -107,7 +107,7 @@ const stagingConfig: EnvironmentConfig = {
 const productionConfig: EnvironmentConfig = {
   api: {
     baseUrl: 'https://api.producthot.top',
-    timeout: 10000,
+    timeout: 60000,
     retryAttempts: 3,
     retryDelay: 2000,
   },

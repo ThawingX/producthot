@@ -192,7 +192,7 @@ export async function debugProjectApis() {
   const endpoints = [
     {
       name: 'News API (直接访问)',
-      url: `${baseUrl}/api/news`,
+      url: `${baseUrl}/api/news/`,
       method: 'GET' as const
     },
     {

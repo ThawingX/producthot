@@ -45,7 +45,7 @@
 
 ### 保留的API模块
 1. **newsApi** - 只保留实际使用的方法
-   - `getNews(params?: { lang?: 'zh' | 'en' })` - 获取新闻数据，对应 `/api/news` 接口
+   - `getNews(params?: { lang?: 'zh' | 'en' })` - 获取新闻数据，对应 `/api/news/` 接口
    - `likeNews(id: number)` - 点赞新闻，简化为前端交互
 
 ### 保留的接口定义
@@ -58,7 +58,7 @@
 
 ## 实际使用情况分析
 
-### 使用 `/api/news` 接口的地方
+### 使用 `/api/news/` 接口的地方
 1. **src/hooks/useProductInsights.ts**
    - 调用 `newsApi.getNews()` 获取产品资讯数据
 
@@ -80,7 +80,7 @@
 - ✅ 项目编译成功
 - ✅ 开发服务器正常启动（http://localhost:5174/）
 - ✅ 页面正常加载，无编译错误
-- ✅ 保留的 `/api/news` 接口功能正常
+- ✅ 保留的 `/api/news/` 接口功能正常
 
 ## 注意事项
 1. `likeNews()` 方法被简化为前端交互，不再调用真实API
