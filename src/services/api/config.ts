@@ -134,6 +134,32 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     console.log('✅ API Response:', response.status, response.config.url);
     console.log('📦 Response Data:', response.data);
+    
+    // 处理重定向状态码
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.location;
+      console.warn(`🔄 收到重定向 ${response.status}:`, {
+        originalUrl: response.config.url,
+        redirectTo: location,
+        status: response.status
+      });
+      
+      // 如果是307重定向，尝试使用新的URL重新发送请求
+      if (response.status === 307 && location) {
+        console.log('🔄 处理307重定向，重新发送请求到:', location);
+        
+        // 创建新的请求配置
+        const newConfig = {
+          ...response.config,
+          url: location,
+          baseURL: '', // 清空baseURL，因为location通常是完整URL
+        };
+        
+        // 重新发送请求
+        return apiClient.request(newConfig);
+      }
+    }
+    
     return response;
   },
   (error) => {
@@ -142,8 +168,27 @@ apiClient.interceptors.response.use(
       status: error.response?.status,
       statusText: error.response?.statusText,
       data: error.response?.data,
-      message: error.message
+      message: error.message,
+      headers: error.response?.headers
     });
+    
+    // 特别处理重定向错误
+    if (error.response?.status >= 300 && error.response?.status < 400) {
+      const location = error.response.headers.location;
+      console.warn(`🔄 重定向错误 ${error.response.status}:`, {
+        originalUrl: error.config?.url,
+        redirectTo: location,
+        message: '可能是HTTPS重定向或URL路径问题'
+      });
+      
+      // 提供更详细的错误信息
+      const redirectError = new Error(`重定向错误 ${error.response.status}: ${location || '未知位置'}`);
+      (redirectError as any).isRedirectError = true;
+      (redirectError as any).redirectLocation = location;
+      (redirectError as any).originalStatus = error.response.status;
+      
+      return Promise.reject(redirectError);
+    }
     
     // 处理认证错误
     if (error.response?.status === 401) {

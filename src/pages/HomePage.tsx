@@ -5,7 +5,7 @@ import { NewsCard, NewsFilters } from '../components/news';
 import { Card, CardHeader, CardTitle, CardContent, Loading, Button } from '../components/ui';
 import { SEO, StructuredDataGenerator } from '../components/seo';
 import { useAppStore } from '../store';
-import { newsApi, channelApi, NewsItem, Channel, NewsResponse, NewsSource } from '../services/api';
+import { newsApi, NewsResponse, NewsSource, NewsItem, Channel } from '../services/api';
 import { useProductInsights } from '../hooks/useProductInsights';
 import { PAGE_SEO_CONFIG } from '../config/seo';
 import { SEO_KEYWORDS } from '../config/keywords';
@@ -80,21 +80,26 @@ const transformNewsResponse = (newsResponse: NewsResponse): NewsItem[] => {
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
-  const { news, setNews, channels, setChannels, loading, setLoading } = useAppStore();
+  const { news, setNews, channels, setChannels } = useAppStore();
   
-  // 添加产品资讯数据获取
+  // 使用 useProductInsights hook 获取数据和状态
   const { 
-    data: productInsights, 
-    isLoading: productInsightsLoading, 
-    fetchProductInsights 
+    productInsights, 
+    loading: productInsightsLoading, 
+    error: productInsightsError,
+    refreshData 
   } = useProductInsights();
-  
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes'>('date');
-  const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
-  
-  // 添加错误状态
-  const [error, setError] = useState<string | null>(null);
+
+  // 使用 hook 的状态
+  const loading = productInsightsLoading;
+  const error = productInsightsError;
+
+  // 本地状态
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest');
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const [channels, setChannels] = useState<Channel[]>(mockChannels);
+  const [filteredNews, setFilteredNews] = useState<NewsItem[]>();
   
   // 模拟数据 - 实际项目中会从API获取
   const mockChannels: Channel[] = [
@@ -183,9 +188,59 @@ export const HomePage: React.FC = () => {
   // 加载数据
   useEffect(() => {
     console.log('🚀 HomePage useEffect 被调用');
-    setDebugInfo('useEffect 开始执行...');
-    loadData();
-  }, []);
+    refreshData();
+  }, [refreshData]);
+
+  // 当productInsights数据更新时，转换并设置到store中
+  useEffect(() => {
+    if (productInsights) {
+      console.log('🔄 转换产品资讯数据到新闻格式');
+      
+      // 转换数据格式
+      const transformedNews = transformNewsResponse(productInsights);
+      setNews(transformedNews);
+      
+      // 设置频道数据
+      const dynamicChannels: Channel[] = [
+        {
+          id: 'new_products',
+          name: '新产品发布',
+          icon: 'zap',
+          updateTime: productInsights.new_products[0]?.update_time ? 
+            new Date(productInsights.new_products[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#FF6154',
+          bgGradient: 'from-orange-500/20 to-red-500/20',
+          articles: transformedNews.filter(item => item.category === 'new_products')
+        },
+        {
+          id: 'reddits',
+          name: 'Reddit 讨论',
+          icon: 'users',
+          updateTime: productInsights.reddits[0]?.update_time ? 
+            new Date(productInsights.reddits[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#FF4500',
+          bgGradient: 'from-red-500/20 to-orange-500/20',
+          articles: transformedNews.filter(item => item.category === 'reddits')
+        },
+        {
+          id: 'trendings',
+          name: '趋势热点',
+          icon: 'trending-up',
+          updateTime: productInsights.trendings[0]?.update_time ? 
+            new Date(productInsights.trendings[0].update_time).toLocaleString('zh-CN') : '暂无更新',
+          color: '#00D084',
+          bgGradient: 'from-green-500/20 to-emerald-500/20',
+          articles: transformedNews.filter(item => item.category === 'trendings')
+        }
+      ];
+      
+      setChannels(dynamicChannels);
+      
+      if (transformedNews.length > 0) {
+        toast.success(`成功加载 ${transformedNews.length} 条新闻`);
+      }
+    }
+  }, [productInsights, setNews, setChannels]);
   
   // 筛选和排序新闻
   useEffect(() => {
@@ -211,95 +266,6 @@ export const HomePage: React.FC = () => {
     
     setFilteredNews(filtered);
   }, [news, selectedCategory, sortBy]);
-  
-  const loadData = async () => {
-    console.log('🔥🔥🔥 loadData 函数开始执行 🔥🔥🔥');
-    try {
-      setLoading(true);
-      setError(null); // 清除之前的错误
-      
-      console.log('🔄 开始加载新闻数据...');
-      console.log('📡 API 基础 URL:', import.meta.env.VITE_API_BASE_URL || 'http://35.209.49.134:8030');
-      
-      // 调用新的 API 获取所有新闻数据
-      const newsResponse = await newsApi.getNews({ lang: 'zh' });
-      
-      console.log('✅ API 响应成功:', newsResponse);
-      
-      // 转换数据格式 - 注意：现在需要访问 newsResponse.data
-      const transformedNews = transformNewsResponse(newsResponse.data);
-      setNews(transformedNews);
-      
-      // 设置频道数据（基于 API 响应动态生成）
-      const dynamicChannels: Channel[] = [
-        {
-          id: 'new_products',
-          name: '新产品发布',
-          icon: 'zap',
-          updateTime: newsResponse.data.new_products[0]?.update_time ? 
-            new Date(newsResponse.data.new_products[0].update_time).toLocaleString('zh-CN') : '暂无更新',
-          color: '#FF6154',
-          bgGradient: 'from-orange-500/20 to-red-500/20',
-          articles: transformedNews.filter(item => item.category === 'new_products')
-        },
-        {
-          id: 'reddits',
-          name: 'Reddit 讨论',
-          icon: 'users',
-          updateTime: newsResponse.data.reddits[0]?.update_time ? 
-            new Date(newsResponse.data.reddits[0].update_time).toLocaleString('zh-CN') : '暂无更新',
-          color: '#FF4500',
-          bgGradient: 'from-red-500/20 to-orange-500/20',
-          articles: transformedNews.filter(item => item.category === 'reddits')
-        },
-        {
-          id: 'trendings',
-          name: '趋势热点',
-          icon: 'trending-up',
-          updateTime: newsResponse.data.trendings[0]?.update_time ? 
-            new Date(newsResponse.data.trendings[0].update_time).toLocaleString('zh-CN') : '暂无更新',
-          color: '#00D084',
-          bgGradient: 'from-green-500/20 to-emerald-500/20',
-          articles: transformedNews.filter(item => item.category === 'trendings')
-        }
-      ];
-      
-      setChannels(dynamicChannels);
-      
-      console.log('✅ 成功加载新闻数据:', {
-        totalNews: transformedNews.length,
-        newProducts: newsResponse.data.new_products.length,
-        reddits: newsResponse.data.reddits.length,
-        trendings: newsResponse.data.trendings.length
-      });
-      
-      // 只有在真正成功时才显示成功消息
-      if (transformedNews.length > 0) {
-        toast.success(`成功加载 ${transformedNews.length} 条新闻`);
-      }
-      
-    } catch (error) {
-      console.error('❌ API 调用失败:', error);
-      console.error('❌ 错误详情:', {
-        message: error.message,
-        status: error.status,
-        code: error.code,
-        details: error.details
-      });
-      
-      const errorMessage = error.message || '网络错误，请稍后重试';
-      setError(errorMessage);
-      
-      // 使用模拟数据作为后备
-      console.log('🔄 使用默认模拟数据作为后备');
-      setNews(mockNews);
-      setChannels(mockChannels);
-      
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
   
   const handleNewsRead = (id: number) => {
     // 在实际项目中，这里会打开新闻详情或跳转到外部链接
@@ -380,7 +346,7 @@ export const HomePage: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={loadData}
+                  onClick={refreshData}
                   className="ml-auto text-red-600 hover:text-red-800"
                 >
                   重试
@@ -398,7 +364,7 @@ export const HomePage: React.FC = () => {
           </div>
           
           <Button
-            onClick={loadData}
+            onClick={refreshData}
             loading={loading || productInsightsLoading}
             icon={<TrendingUp className="w-4 h-4" />}
           >
