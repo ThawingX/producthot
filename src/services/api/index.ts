@@ -93,7 +93,7 @@ export const newsApi = {
       console.log('🔄 调用 getNews API，参数:', params);
       
       // 确保URL使用HTTPS
-      let url = '/api/news';
+      const url = '/api/news/';
       
       const response = await apiClient.get(url, { 
         params: {
