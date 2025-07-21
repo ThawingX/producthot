@@ -14,6 +14,10 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return date.toLocaleDateString('zh-CN', {
       month: 'short',
       day: 'numeric',
+    }) + ' ' + date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -158,6 +162,10 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return date.toLocaleDateString('zh-CN', {
       month: 'short',
       day: 'numeric',
+    }) + ' ' + date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -302,6 +310,10 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return date.toLocaleDateString('zh-CN', {
       month: 'short',
       day: 'numeric',
+    }) + ' ' + date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 

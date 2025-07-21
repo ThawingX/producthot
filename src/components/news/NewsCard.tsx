@@ -77,10 +77,18 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return t('time.justNow');
-    if (diffInMinutes < 60) return t('time.minutesAgo', { count: diffInMinutes });
-    if (diffInMinutes < 1440) return t('time.hoursAgo', { count: Math.floor(diffInMinutes / 60) });
-    return t('time.daysAgo', { count: Math.floor(diffInMinutes / 1440) });
+    const relativeTime = diffInMinutes < 1 ? t('time.justNow') :
+                        diffInMinutes < 60 ? t('time.minutesAgo', { count: diffInMinutes }) :
+                        diffInMinutes < 1440 ? t('time.hoursAgo', { count: Math.floor(diffInMinutes / 60) }) :
+                        t('time.daysAgo', { count: Math.floor(diffInMinutes / 1440) });
+    
+    const fullTime = date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    
+    return `${relativeTime} (${fullTime})`;
   };
   
   if (compact) {

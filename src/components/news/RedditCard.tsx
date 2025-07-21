@@ -12,6 +12,10 @@ export const RedditCard: React.FC<RedditCardProps> = ({ discussion }) => {
     return date.toLocaleDateString('zh-CN', {
       month: 'short',
       day: 'numeric',
+    }) + ' ' + date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 

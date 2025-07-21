@@ -11,5 +11,5 @@
 - [x] 标题可点击，链接可分享
 - [x] sitemap robots.txt
 - [x] logo
-- [ ] 文案完善
-- [ ] 线索拆解waitlist
+- [x] 文案完善
+- [x] update

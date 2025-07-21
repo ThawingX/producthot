@@ -33,7 +33,12 @@ export const ClueAnalysisPage: React.FC = () => {
       }
     };
 
+    // 添加滚动事件监听
     window.addEventListener('scroll', handleScroll);
+    
+    // 初始加载时也检查一次，以防元素已经在视口中
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, [animateStats]);
 
