@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Bell, Menu, X } from 'lucide-react';
 import { TabType } from '../../types';
+import logoSvg from '/logo.svg';
 
 interface NavigationHeaderProps {
   activeTab: TabType;
@@ -21,9 +22,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl">
-              <span className="text-lg font-bold text-white">PH</span>
-            </div>
+            <img src={logoSvg} alt="ProductHot Logo" className="w-10 h-10" />
             <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               ProductHot
             </span>
