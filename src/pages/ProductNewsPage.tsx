@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { EmptyState, SmartSectionRenderer } from '../components/common';
 import { useProductInsights } from '../hooks/useProductInsights';
 import { NewsSource } from '../services/api';
-import { ExternalLink, TrendingUp, Calendar, Users, Heart, Share, Check } from 'lucide-react';
+import { ExternalLink, TrendingUp, Calendar, Users, Heart, Share, Check, Brain, Target, Zap } from 'lucide-react';
 
 // 创建一个产品卡片组件，用于显示 NewsSource 中的产品数据
 const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
@@ -446,13 +446,59 @@ export const ProductNewsPage: React.FC = () => {
   return (
     <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 lg:p-6">
       <div className="mx-auto max-w-7xl">
+        {/* 欢迎信息 */}
+        <div className="p-6 mb-12 rounded-xl border shadow-lg backdrop-blur-sm bg-white/80 border-white/20">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="mb-4 text-2xl font-bold text-gray-800 lg:text-3xl">还在为寻找下一个爆款灵感而苦恼？</h2>
+            <p className="mb-4 text-gray-600">我们懂产品经理、开发者和创业团队的痛点。</p>
+            <p className="mb-4 text-gray-600">
+              <span className="font-semibold">ProductHot</span> 严选全球前沿资讯，为您聚合Product Hunt、Reddit、Hacker News 和各类社区的最新产品发布、讨论热点与新兴趋势。
+            </p>
+            <div className="p-4 mb-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
+              <h3 className="mb-2 text-lg font-semibold text-gray-800">AI驱动的<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">线索识别与拆解工作台</span></h3>
+              <p className="mb-3 text-gray-700">
+                我们不仅是信息的聚合，更是您的信息过滤器。在当前信息过载的时代，我们提供了基于资讯，讨论，产品的线索识别分析工作台，为您提供实时，精准，高效的产品需求线索识别和拆解。
+              </p>
+              <div className="grid grid-cols-1 gap-3 mb-2 md:grid-cols-3">
+                <div className="flex items-start space-x-2">
+                  <div className="p-1 bg-purple-100 rounded-md">
+                    <Brain className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <p className="text-sm text-gray-600">真实性：基于实际产品和帖子，杜绝AI幻觉</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="p-1 bg-blue-100 rounded-md">
+                    <Target className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <p className="text-sm text-gray-600">专业性：基于权威B2B线索识别和拆解的横向赋能</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="p-1 bg-teal-100 rounded-md">
+                    <Zap className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <p className="text-sm text-gray-600">高效性：数据来源和工作台一体化，提升效率</p>
+                </div>
+              </div>
+            </div>
+            <p className="mb-6 font-semibold text-gray-800">
+              <span className="text-xl text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">您的下一个成功</span>，从这里开始。
+            </p>
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="flex items-center text-blue-700">
+                <span className="mr-2">💡</span>
+                <span>立即向下滚动，探索最新的产品资讯，如果想要体验线索拆解工作台，点击上方按钮</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        
         {/* 页面标题 */}
         <div className="mb-8 text-center">
-          <h1 className="mb-4 text-3xl font-bold text-gray-800 lg:text-4xl">产品资讯</h1>
-          <p className="mb-4 text-sm text-gray-600 lg:text-base">获取最新的产品发布、讨论和趋势信息</p>
+          <h1 className="mb-4 text-3xl font-bold text-gray-800 lg:text-4xl">产品灵感发掘</h1>
+          <p className="mb-4 text-sm text-gray-600 lg:text-base">提供Product Hunt，Hacker News，开发者自荐，社区讨论，技术趋势等内容</p>
           
           {/* 搜索提示 */}
-          <div className="p-4 mx-auto max-w-2xl bg-blue-50 rounded-lg border border-blue-200">
+          {/* <div className="p-4 mx-auto max-w-2xl bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex justify-center items-center space-x-2 text-blue-700">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -461,7 +507,7 @@ export const ProductNewsPage: React.FC = () => {
                 💡 搜索提示：使用 <kbd className="px-2 py-1 font-mono text-xs bg-white rounded border border-blue-300">Ctrl+F</kbd> (Windows) 或 <kbd className="px-2 py-1 font-mono text-xs bg-white rounded border border-blue-300">Cmd+F</kbd> (Mac) 在当前页面搜索内容
               </span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* 产品发布部分 */}
@@ -482,7 +528,7 @@ export const ProductNewsPage: React.FC = () => {
 
         {/* Reddit/SaaS 讨论部分 */}
         <SmartSectionRenderer
-          title="💬 社区需求讨论"
+          title="💬 听社区的心声"
           isLoading={isLoading}
           error={error}
           data={data?.reddits}
@@ -498,7 +544,7 @@ export const ProductNewsPage: React.FC = () => {
 
         {/* 需求趋势部分 */}
         <SmartSectionRenderer
-          title="📈 需求趋势"
+          title="📈 从技术洞察需求趋势"
           isLoading={isLoading}
           error={error}
           data={data?.trendings}

@@ -48,7 +48,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
                   : 'text-gray-600 hover:bg-white/50'
               }`}
             >
-              线索拆解
+              线索拆解工作台
             </button>
           </nav>
 
@@ -96,7 +96,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
                     : 'text-gray-600 hover:bg-white/50'
                 }`}
               >
-                线索拆解
+                线索拆解工作台
               </button>
             </nav>
             <div className="pt-4 mt-4 border-t border-white/20">
