@@ -92,7 +92,10 @@ export const newsApi = {
     try {
       console.log('🔄 调用 getNews API，参数:', params);
       
-      const response = await apiClient.get('/api/news', { 
+      // 确保URL使用HTTPS
+      let url = '/api/news';
+      
+      const response = await apiClient.get(url, { 
         params: {
           lang: params?.lang || 'zh' // 默认使用中文
         }

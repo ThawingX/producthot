@@ -3,7 +3,15 @@ import { config, isDevelopment, isProduction, getCurrentEnvironment } from '../.
 
 // API配置 - 基于环境配置
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || config.api.baseUrl,
+  BASE_URL: (() => {
+    const envUrl = import.meta.env.VITE_API_BASE_URL || config.api.baseUrl;
+    // 在生产环境中确保使用HTTPS
+    if (isProduction() && envUrl && envUrl.startsWith('http:')) {
+      console.warn('⚠️ 生产环境检测到HTTP API URL，自动转换为HTTPS:', envUrl);
+      return envUrl.replace('http:', 'https:');
+    }
+    return envUrl;
+  })(),
   TIMEOUT: config.api.timeout,
   RETRY_ATTEMPTS: config.api.retryAttempts,
   RETRY_DELAY: config.api.retryDelay,
