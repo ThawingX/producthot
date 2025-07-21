@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { EmptyState, SmartSectionRenderer } from '../components/common';
 import { useProductInsights } from '../hooks/useProductInsights';
 import { NewsSource } from '../services/api';
-import { ExternalLink, TrendingUp, Calendar, Users, Heart } from 'lucide-react';
+import { ExternalLink, TrendingUp, Calendar, Users, Heart, Share, Check } from 'lucide-react';
 
 // 创建一个产品卡片组件，用于显示 NewsSource 中的产品数据
 const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
+  const [copiedPostId, setCopiedPostId] = useState<number | null>(null);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-CN', {
@@ -19,6 +21,35 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       return `${(num / 1000).toFixed(1)}k`;
     }
     return num.toString();
+  };
+
+  const handleTitleClick = (url: string) => {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleShare = async (url: string, postIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedPostId(postIndex);
+      setTimeout(() => setCopiedPostId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // 降级处理
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedPostId(postIndex);
+        setTimeout(() => setCopiedPostId(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   // 显示5-8篇文章，如果超过7篇则显示滚动条
@@ -50,7 +81,13 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-blue-500 pl-4 py-2">
-              <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
+              <h4 
+                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={() => handleTitleClick(post.url)}
+                title="点击查看详情"
+              >
+                {post.title}
+              </h4>
               <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
               
               <div className="flex items-center justify-between">
@@ -60,15 +97,34 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     {formatNumber(post.upvotes)}
                   </span>
                 </div>
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors"
-                >
-                  查看
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </a>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleShare(post.url, index)}
+                    className="inline-flex items-center text-gray-500 hover:text-blue-600 text-xs font-medium transition-colors"
+                    title={copiedPostId === index ? "已复制链接" : "分享链接"}
+                  >
+                    {copiedPostId === index ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <span className="text-green-500">已复制</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share className="w-3 h-3 mr-1" />
+                        分享
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors"
+                  >
+                    查看
+                    <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+                </div>
               </div>
             </div>
           ))}
@@ -94,6 +150,8 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 
 // 创建一个Reddit卡片组件，用于显示 NewsSource 中的Reddit数据
 const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
+  const [copiedPostId, setCopiedPostId] = useState<number | null>(null);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-CN', {
@@ -107,6 +165,35 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       return `${(num / 1000).toFixed(1)}k`;
     }
     return num.toString();
+  };
+
+  const handleTitleClick = (url: string) => {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleShare = async (url: string, postIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedPostId(postIndex);
+      setTimeout(() => setCopiedPostId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // 降级处理
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedPostId(postIndex);
+        setTimeout(() => setCopiedPostId(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   // 显示5-8篇文章，如果超过7篇则显示滚动条
@@ -138,7 +225,13 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-orange-500 pl-4 py-2">
-              <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
+              <h4 
+                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-orange-600 transition-colors"
+                onClick={() => handleTitleClick(post.url)}
+                title="点击查看详情"
+              >
+                {post.title}
+              </h4>
               <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
               
               <div className="flex items-center justify-between">
@@ -148,15 +241,34 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     {formatNumber(post.upvotes)} upvotes
                   </span>
                 </div>
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-orange-600 hover:text-orange-800 text-xs font-medium transition-colors"
-                >
-                  查看
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </a>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleShare(post.url, index)}
+                    className="inline-flex items-center text-gray-500 hover:text-orange-600 text-xs font-medium transition-colors"
+                    title={copiedPostId === index ? "已复制链接" : "分享链接"}
+                  >
+                    {copiedPostId === index ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <span className="text-green-500">已复制</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share className="w-3 h-3 mr-1" />
+                        分享
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-orange-600 hover:text-orange-800 text-xs font-medium transition-colors"
+                  >
+                    查看
+                    <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+                </div>
               </div>
             </div>
           ))}
@@ -182,6 +294,8 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 
 // 创建一个趋势卡片组件，用于显示 NewsSource 中的趋势数据
 const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
+  const [copiedPostId, setCopiedPostId] = useState<number | null>(null);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-CN', {
@@ -195,6 +309,35 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       return `${(num / 1000).toFixed(1)}k`;
     }
     return num.toString();
+  };
+
+  const handleTitleClick = (url: string) => {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleShare = async (url: string, postIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedPostId(postIndex);
+      setTimeout(() => setCopiedPostId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // 降级处理
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedPostId(postIndex);
+        setTimeout(() => setCopiedPostId(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   // 显示5-8篇文章，如果超过7篇则显示滚动条
@@ -226,7 +369,13 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-green-500 pl-4 py-2">
-              <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
+              <h4 
+                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-green-600 transition-colors"
+                onClick={() => handleTitleClick(post.url)}
+                title="点击查看详情"
+              >
+                {post.title}
+              </h4>
               <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
               
               <div className="flex items-center justify-between">
@@ -236,15 +385,34 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     {formatNumber(post.upvotes)} 热度
                   </span>
                 </div>
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-green-600 hover:text-green-800 text-xs font-medium transition-colors"
-                >
-                  查看
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </a>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleShare(post.url, index)}
+                    className="inline-flex items-center text-gray-500 hover:text-green-600 text-xs font-medium transition-colors"
+                    title={copiedPostId === index ? "已复制链接" : "分享链接"}
+                  >
+                    {copiedPostId === index ? (
+                      <>
+                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <span className="text-green-500">已复制</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share className="w-3 h-3 mr-1" />
+                        分享
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-green-600 hover:text-green-800 text-xs font-medium transition-colors"
+                  >
+                    查看
+                    <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+                </div>
               </div>
             </div>
           ))}

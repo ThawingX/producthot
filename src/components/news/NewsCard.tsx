@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, Heart, Share, Calendar, ExternalLink } from 'lucide-react';
+import { Eye, Heart, Share, Calendar, ExternalLink, Copy, Check } from 'lucide-react';
 import { Card, CardContent, Button } from '../ui';
 import { NewsItem } from '../../services/api';
 import { useNewsStore } from '../../store';
@@ -22,12 +22,20 @@ export const NewsCard: React.FC<NewsCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const { favorites, addToFavorites, removeFromFavorites, addToHistory } = useNewsStore();
+  const [copied, setCopied] = React.useState(false);
   
   const isFavorited = favorites.includes(news.id);
   
   const handleRead = () => {
     addToHistory(news.id);
     onRead?.(news.id);
+  };
+  
+  const handleTitleClick = () => {
+    if (news.url) {
+      window.open(news.url, '_blank', 'noopener,noreferrer');
+      addToHistory(news.id);
+    }
   };
   
   const handleLike = () => {
@@ -39,8 +47,29 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     onLike?.(news.id);
   };
   
-  const handleShare = () => {
-    onShare?.(news.id);
+  const handleShare = async () => {
+    try {
+      const shareUrl = news.url || window.location.href;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      onShare?.(news.id);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // 降级处理：尝试使用传统方法
+      const textArea = document.createElement('textarea');
+      textArea.value = news.url || window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
   
   const formatTime = (dateString: string) => {
@@ -60,12 +89,15 @@ export const NewsCard: React.FC<NewsCardProps> = ({
         variant="outlined" 
         padding="sm" 
         hoverable 
-        onClick={handleRead}
-        className="cursor-pointer hover:border-blue-300"
+        className="hover:border-blue-300"
       >
         <div className="flex items-start space-x-3">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
+            <h3 
+              className="text-sm font-medium text-gray-900 line-clamp-2 mb-1 cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={handleTitleClick}
+              title="点击查看详情"
+            >
               {news.title}
             </h3>
             <div className="flex items-center space-x-4 text-xs text-gray-500">
@@ -83,7 +115,16 @@ export const NewsCard: React.FC<NewsCardProps> = ({
               </span>
             </div>
           </div>
-          <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={handleShare}
+              className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+              title={copied ? "已复制链接" : "分享链接"}
+            >
+              {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share className="w-4 h-4" />}
+            </button>
+            <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          </div>
         </div>
       </Card>
     );
@@ -94,7 +135,11 @@ export const NewsCard: React.FC<NewsCardProps> = ({
       <CardContent>
         <div className="space-y-3">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+            <h3 
+              className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 cursor-pointer"
+              onClick={handleTitleClick}
+              title="点击查看详情"
+            >
               {news.title}
             </h3>
             <p className="text-gray-600 mt-2 line-clamp-3">
@@ -129,9 +174,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleShare}
-                icon={<Share className="w-4 h-4" />}
-                className="text-gray-500 hover:text-blue-500"
-              />
+                icon={copied ? <Check className="w-4 h-4 text-green-500" /> : <Share className="w-4 h-4" />}
+                className={`text-gray-500 transition-colors ${copied ? 'text-green-500' : 'hover:text-blue-500'}`}
+                title={copied ? "已复制链接" : "分享链接"}
+              >
+                {copied ? '已复制' : '分享'}
+              </Button>
               
               <Button
                 variant="ghost"
