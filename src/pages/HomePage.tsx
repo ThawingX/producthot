@@ -319,7 +319,7 @@ export const HomePage: React.FC = () => {
           type={PAGE_SEO_CONFIG.HOME.type as any}
           structuredData={homeStructuredData}
         />
-        <div className="flex items-center justify-center min-h-96">
+        <div className="flex justify-center items-center min-h-96">
           <Loading size="lg" text={t('common.loading')} />
         </div>
       </>
@@ -338,10 +338,10 @@ export const HomePage: React.FC = () => {
       <div className="space-y-6">
         {/* 错误提示 */}
         {error && (
-          <Card className="border-red-200 bg-red-50">
+          <Card className="bg-red-50 border-red-200">
             <CardContent className="py-3">
               <div className="flex items-center space-x-2">
-                <span className="text-red-600 font-medium">❌ 错误:</span>
+                <span className="font-medium text-red-600">❌ 错误:</span>
                 <span className="text-red-800">{error}</span>
                 <Button
                   variant="ghost"
@@ -357,10 +357,10 @@ export const HomePage: React.FC = () => {
         )}
       
         {/* 页面标题 */}
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{t('navigation.home')}</h1>
-            <p className="text-gray-600 mt-1">发现最新的产品和技术趋势</p>
+            <p className="mt-1 text-gray-600">发现最新的产品和技术趋势</p>
           </div>
           
           <Button
@@ -373,7 +373,7 @@ export const HomePage: React.FC = () => {
         </div>
       
       {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card>
           <CardContent className="flex items-center space-x-4">
             <div className="p-3 bg-blue-100 rounded-lg">
@@ -424,7 +424,7 @@ export const HomePage: React.FC = () => {
       <div className="space-y-4">
         {filteredNews.length === 0 ? (
           <Card>
-            <CardContent className="text-center py-12">
+            <CardContent className="py-12 text-center">
               <p className="text-gray-500">{t('news.noNews')}</p>
             </CardContent>
           </Card>
