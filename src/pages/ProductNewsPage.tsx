@@ -21,12 +21,12 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return num.toString();
   };
 
-  // 限制显示的文章数量为5-8篇
-  const displayPosts = source.posts.slice(0, 6);
-  const remainingHeight = 6 - displayPosts.length;
+  // 显示5-8篇文章，如果超过7篇则显示滚动条
+  const displayPosts = source.posts.slice(0, Math.min(source.posts.length, 8));
+  const shouldShowScroll = source.posts.length > 7;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
       <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
@@ -45,9 +45,9 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         </div>
       </div>
 
-      {/* 产品列表 - 固定高度区域 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="space-y-3 h-full">
+      {/* 产品列表 - 可滚动区域 */}
+      <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
+        <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-blue-500 pl-4 py-2">
               <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
@@ -71,11 +71,6 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                 </a>
               </div>
             </div>
-          ))}
-          
-          {/* 填充空白区域以保持统一高度 */}
-          {Array.from({ length: remainingHeight }).map((_, index) => (
-            <div key={`empty-${index}`} className="h-[60px]" />
           ))}
         </div>
       </div>
@@ -114,12 +109,12 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return num.toString();
   };
 
-  // 限制显示的文章数量为5-8篇
-  const displayPosts = source.posts.slice(0, 6);
-  const remainingHeight = 6 - displayPosts.length;
+  // 显示5-8篇文章，如果超过7篇则显示滚动条
+  const displayPosts = source.posts.slice(0, Math.min(source.posts.length, 8));
+  const shouldShowScroll = source.posts.length > 7;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
       <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
@@ -138,9 +133,9 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         </div>
       </div>
 
-      {/* 讨论列表 - 固定高度区域 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="space-y-3 h-full">
+      {/* 讨论列表 - 可滚动区域 */}
+      <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
+        <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-orange-500 pl-4 py-2">
               <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
@@ -164,11 +159,6 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                 </a>
               </div>
             </div>
-          ))}
-          
-          {/* 填充空白区域以保持统一高度 */}
-          {Array.from({ length: remainingHeight }).map((_, index) => (
-            <div key={`empty-${index}`} className="h-[60px]" />
           ))}
         </div>
       </div>
@@ -207,12 +197,12 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
     return num.toString();
   };
 
-  // 限制显示的文章数量为5-8篇
-  const displayPosts = source.posts.slice(0, 6);
-  const remainingHeight = 6 - displayPosts.length;
+  // 显示5-8篇文章，如果超过7篇则显示滚动条
+  const displayPosts = source.posts.slice(0, Math.min(source.posts.length, 8));
+  const shouldShowScroll = source.posts.length > 7;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
       <div className="flex items-center mb-4 flex-shrink-0">
         {source.logo && (
@@ -231,9 +221,9 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
         </div>
       </div>
 
-      {/* 趋势列表 - 固定高度区域 */}
-      <div className="flex-1 overflow-hidden">
-        <div className="space-y-3 h-full">
+      {/* 趋势列表 - 可滚动区域 */}
+      <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
+        <div className="space-y-3 pr-2">
           {displayPosts.map((post, index) => (
             <div key={index} className="border-l-4 border-green-500 pl-4 py-2">
               <h4 className="font-medium text-gray-800 mb-1 text-sm line-clamp-2">{post.title}</h4>
@@ -257,11 +247,6 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                 </a>
               </div>
             </div>
-          ))}
-          
-          {/* 填充空白区域以保持统一高度 */}
-          {Array.from({ length: remainingHeight }).map((_, index) => (
-            <div key={`empty-${index}`} className="h-[60px]" />
           ))}
         </div>
       </div>

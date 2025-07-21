@@ -18,18 +18,19 @@
     "preview:prod": "vite preview --mode production"
   },
   "dependencies": {
+    "axios": "^1.6.2",
+    "clsx": "^2.0.0",
+    "i18next": "^23.7.6",
+    "i18next-browser-languagedetector": "^7.2.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.20.1",
-    "axios": "^1.6.2",
-    "react-query": "^3.39.3",
-    "zustand": "^4.4.7",
+    "react-hot-toast": "^2.4.1",
     "react-i18next": "^13.5.0",
-    "i18next": "^23.7.6",
-    "i18next-browser-languagedetector": "^7.2.0",
-    "clsx": "^2.0.0",
-    "react-hot-toast": "^2.4.1"
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.20.1",
+    "tailwind-scrollbar": "^3.1.0",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
