@@ -55,14 +55,6 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
 
           {/* Search and Actions */}
           <div className="hidden items-center space-x-4 md:flex">
-            {/* <div className="relative">
-              <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="搜索产品或话题..."
-                className="py-2 pr-4 pl-10 w-64 rounded-2xl border transition-all duration-300 outline-none bg-white/50 border-white/20 focus:border-blue-300 focus:ring-2 focus:ring-blue-200"
-              />
-            </div> */}
             <button className="p-2.5 rounded-xl bg-white/50 hover:bg-white/70 transition-all duration-300">
               <Bell className="w-5 h-5 text-gray-600" />
             </button>
@@ -109,14 +101,6 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
               </button>
             </nav>
             <div className="pt-4 mt-4 border-t border-white/20">
-              {/* <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="搜索产品或话题..."
-                  className="py-2 pr-4 pl-10 w-full rounded-2xl border transition-all duration-300 outline-none bg-white/50 border-white/20 focus:border-blue-300 focus:ring-2 focus:ring-blue-200"
-                />
-              </div> */}
               <button className="w-full p-2.5 rounded-xl bg-white/50 hover:bg-white/70 transition-all duration-300 flex items-center justify-center">
                 <Bell className="mr-2 w-5 h-5 text-gray-600" />
                 通知

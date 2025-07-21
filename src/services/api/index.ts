@@ -22,30 +22,57 @@ export interface NewsResponse {
   trendings: NewsSource[];
 }
 
-// 新闻项目接口 - HomePage中使用
+// 基础接口定义
 export interface NewsItem {
   id: number;
   title: string;
   summary: string;
-  link: string;
-  date: string;
+  content: string;
+  publishedAt: string;
+  category: string;
   views: number;
   likes: number;
-  category?: string;
-  tags?: string[];
+  imageUrl?: string;
 }
 
-// 频道接口 - HomePage中使用
-export interface Channel {
+export interface ProductItem {
   id: string;
-  name: string;
-  icon: string;
-  updateTime: string;
-  articles: NewsItem[];
-  color: string;
-  bgGradient: string;
-  description?: string;
-  isActive?: boolean;
+  title: string;
+  description: string;
+  url: string;
+  upvotes: number;
+  comments: number;
+  publishedAt: string;
+  category: string;
+  tags: string[];
+  maker?: string;
+  website?: string;
+  logo?: string;
+}
+
+export interface RedditDiscussion {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
+  upvotes: number;
+  comments: number;
+  subreddit: string;
+  author: string;
+  publishedAt: string;
+  tags: string[];
+}
+
+export interface TrendingItem {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  score: number;
+  category: string;
+  publishedAt: string;
+  tags: string[];
+  source: string;
 }
 
 // 通用API响应接口
@@ -95,9 +122,8 @@ export const newsApi = {
     }
   },
 
-  // 点赞新闻 - 在HomePage中使用，但实际可能不需要真实API调用
+  // 预留功能
   likeNews: async (id: number): Promise<ApiResponse<{ liked: boolean }>> => {
-    // 由于只是前端交互，可以直接返回成功状态
     console.log('点赞新闻:', id);
     return {
       success: true,

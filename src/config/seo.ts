@@ -86,12 +86,10 @@ export const SEO_CONFIG = {
     CHANGE_FREQUENCY: {
       HOME: 'daily',
       NEWS: 'hourly',
-      CHANNELS: 'daily',
       STATIC: 'monthly'
     },
     PRIORITY: {
       HOME: 1.0,
-      CHANNELS: 0.9,
       NEWS: 0.8,
       ANALYSIS: 0.7,
       STATIC: 0.5
@@ -104,7 +102,6 @@ export const SEO_CONFIG = {
     ALLOW: [
       '/',
       '/news/',
-      '/channels/',
       '/analysis/',
       '/search/'
     ],
@@ -159,43 +156,6 @@ export const PAGE_SEO_CONFIG = {
     description: '通过AI驱动的需求分析，帮助产品经理和创业者发现市场机会，识别用户需求，预测产品趋势，提供专业的市场洞察。',
     keywords: ['需求分析', '市场洞察', '产品机会', '趋势预测', '用户需求挖掘'],
     type: 'website'
-  },
-  
-  CHANNELS: {
-    PRODUCTHUNT: {
-      title: 'ProductHunt资讯 - 最新产品发现与推荐',
-      description: '实时同步ProductHunt平台的最新产品发布，发现创新产品和创业项目，获取产品投票和用户反馈信息。',
-      keywords: ['ProductHunt', '产品发现', '新产品推荐', '创业产品'],
-      type: 'website'
-    },
-    
-    HACKERNEWS: {
-      title: 'Hacker News资讯 - 技术新闻与开发者讨论',
-      description: '聚合Hacker News的技术新闻、开发者讨论和Show HN项目，为技术专家提供最新的科技资讯和技术趋势。',
-      keywords: ['Hacker News', '技术新闻', '开发者资讯', 'Show HN'],
-      type: 'website'
-    },
-    
-    GITHUB: {
-      title: 'GitHub开源项目 - 最新开源软件与开发者工具',
-      description: '发现GitHub上的热门开源项目、开发者工具和代码仓库，跟踪GitHub Trending，获取最新的开源软件推荐。',
-      keywords: ['GitHub', '开源项目', '开发者工具', 'GitHub Trending'],
-      type: 'website'
-    },
-    
-    REDDIT: {
-      title: 'Reddit科技讨论 - 用户反馈与产品讨论',
-      description: '聚合Reddit上的科技讨论、产品反馈和用户评价，了解真实的用户声音和产品使用体验。',
-      keywords: ['Reddit', '科技讨论', '产品讨论', '用户反馈'],
-      type: 'website'
-    },
-    
-    TECHCRUNCH: {
-      title: 'TechCrunch资讯 - 科技新闻与创业投资',
-      description: '获取TechCrunch的最新科技新闻、创业资讯和投资动态，了解科技行业的最新发展和投资趋势。',
-      keywords: ['TechCrunch', '科技新闻', '创业资讯', '投资新闻'],
-      type: 'website'
-    }
   }
 };
 

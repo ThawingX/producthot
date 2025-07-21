@@ -1,216 +1,238 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { NewsItem, Channel, NewsResponse, ProductItem, RedditDiscussion, TrendingItem } from '../services/api';
+import { devtools, persist } from 'zustand/middleware';
+import { NewsItem, ProductItem, RedditDiscussion, TrendingItem } from '../services/api';
 
-// 应用状态接口
-interface AppState {
-  // UI状态
-  theme: 'light' | 'dark' | 'system';
-  language: string;
-  sidebarOpen: boolean;
-  loading: boolean;
-  
-  // 用户状态
-  user: any | null;
-  isAuthenticated: boolean;
-  
-  // 数据状态
+// 新闻状态接口
+interface NewsState {
+  // 新闻数据
   news: NewsItem[];
-  channels: Channel[];
-  activeChannel: string | null;
+  filteredNews: NewsItem[];
+  selectedCategory: string;
+  sortBy: 'date' | 'views' | 'likes';
   searchQuery: string;
   
-  // 产品资讯状态
-  productInsights: NewsResponse | null;
-  productInsightsLoading: boolean;
-  productInsightsError: string | null;
-  
-  // 操作方法
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
-  setLanguage: (language: string) => void;
-  setSidebarOpen: (open: boolean) => void;
-  setLoading: (loading: boolean) => void;
-  setUser: (user: any) => void;
-  setNews: (news: NewsItem[]) => void;
-  setChannels: (channels: Channel[]) => void;
-  setActiveChannel: (channelId: string | null) => void;
-  setSearchQuery: (query: string) => void;
-  
-  // 产品资讯相关方法
-  setProductInsights: (data: NewsResponse) => void;
-  setProductInsightsLoading: (loading: boolean) => void;
-  setProductInsightsError: (error: string | null) => void;
-  
-  logout: () => void;
-  reset: () => void;
-}
-
-// 创建状态存储
-export const useAppStore = create<AppState>()(
-  persist(
-    (set, get) => ({
-      // 初始状态
-      theme: 'system',
-      language: 'zh-CN',
-      sidebarOpen: true,
-      loading: false,
-      user: null,
-      isAuthenticated: false,
-      news: [],
-      channels: [],
-      activeChannel: null,
-      searchQuery: '',
-      
-      // 产品资讯初始状态
-      productInsights: null,
-      productInsightsLoading: false,
-      productInsightsError: null,
-
-      // 操作方法
-      setTheme: (theme) => set({ theme }),
-      setLanguage: (language) => set({ language }),
-      setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-      setLoading: (loading) => set({ loading }),
-      
-      setUser: (user) => set({ 
-        user, 
-        isAuthenticated: !!user 
-      }),
-      
-      setNews: (news) => set({ news }),
-      setChannels: (channels) => set({ channels }),
-      setActiveChannel: (activeChannel) => set({ activeChannel }),
-      setSearchQuery: (searchQuery) => set({ searchQuery }),
-      
-      // 产品资讯相关方法
-      setProductInsights: (productInsights) => set({ productInsights }),
-      setProductInsightsLoading: (productInsightsLoading) => set({ productInsightsLoading }),
-      setProductInsightsError: (productInsightsError) => set({ productInsightsError }),
-      
-      logout: () => set({ 
-        user: null, 
-        isAuthenticated: false 
-      }),
-      
-      reset: () => set({
-        news: [],
-        channels: [],
-        activeChannel: null,
-        searchQuery: '',
-        loading: false,
-        productInsights: null,
-        productInsightsLoading: false,
-        productInsightsError: null,
-      }),
-    }),
-    {
-      name: 'app-storage',
-      partialize: (state) => ({
-        theme: state.theme,
-        language: state.language,
-        sidebarOpen: state.sidebarOpen,
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);
-
-// 新闻相关状态
-interface NewsState {
+  // 用户交互数据
   favorites: number[];
   readHistory: number[];
   bookmarks: number[];
   
+  // 加载状态
+  isLoading: boolean;
+  error: string | null;
+  
+  // 操作方法
+  setNews: (news: NewsItem[]) => void;
+  setFilteredNews: (news: NewsItem[]) => void;
+  setSelectedCategory: (category: string) => void;
+  setSortBy: (sortBy: 'date' | 'views' | 'likes') => void;
+  setSearchQuery: (query: string) => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  
+  // 用户交互方法
   addToFavorites: (id: number) => void;
   removeFromFavorites: (id: number) => void;
   addToHistory: (id: number) => void;
   addToBookmarks: (id: number) => void;
   removeFromBookmarks: (id: number) => void;
   clearHistory: () => void;
+  
+  // 筛选和搜索
+  filterNews: () => void;
+  searchNews: (query: string) => void;
+  resetFilters: () => void;
 }
 
+// 产品洞察状态接口
+interface ProductInsightsState {
+  // 产品数据
+  products: ProductItem[];
+  redditDiscussions: RedditDiscussion[];
+  trendingItems: TrendingItem[];
+  
+  // 加载状态
+  isLoading: boolean;
+  error: string | null;
+  
+  // 操作方法
+  setProducts: (products: ProductItem[]) => void;
+  setRedditDiscussions: (discussions: RedditDiscussion[]) => void;
+  setTrendingItems: (items: TrendingItem[]) => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+// 新闻状态管理
 export const useNewsStore = create<NewsState>()(
   persist(
-    (set, get) => ({
-      favorites: [],
-      readHistory: [],
-      bookmarks: [],
-      
-      addToFavorites: (id) => set((state) => ({
-        favorites: state.favorites.includes(id) 
-          ? state.favorites 
-          : [...state.favorites, id]
-      })),
-      
-      removeFromFavorites: (id) => set((state) => ({
-        favorites: state.favorites.filter(fId => fId !== id)
-      })),
-      
-      addToHistory: (id) => set((state) => {
-        const newHistory = [id, ...state.readHistory.filter(hId => hId !== id)];
-        return { readHistory: newHistory.slice(0, 100) }; // 限制历史记录数量
+    devtools(
+      (set, get) => ({
+        // 初始状态
+        news: [],
+        filteredNews: [],
+        selectedCategory: '',
+        sortBy: 'date',
+        searchQuery: '',
+        favorites: [],
+        readHistory: [],
+        bookmarks: [],
+        isLoading: false,
+        error: null,
+        
+        // 设置方法
+        setNews: (news) => set({ news }),
+        setFilteredNews: (filteredNews) => set({ filteredNews }),
+        setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
+        setSortBy: (sortBy) => set({ sortBy }),
+        setSearchQuery: (searchQuery) => set({ searchQuery }),
+        setIsLoading: (isLoading) => set({ isLoading }),
+        setError: (error) => set({ error }),
+        
+        // 用户交互方法
+        addToFavorites: (id) => set((state) => ({
+          favorites: state.favorites.includes(id) 
+            ? state.favorites 
+            : [...state.favorites, id]
+        })),
+        
+        removeFromFavorites: (id) => set((state) => ({
+          favorites: state.favorites.filter(fId => fId !== id)
+        })),
+        
+        addToHistory: (id) => set((state) => {
+          const newHistory = [id, ...state.readHistory.filter(hId => hId !== id)];
+          return { readHistory: newHistory.slice(0, 100) }; // 限制历史记录数量
+        }),
+        
+        addToBookmarks: (id) => set((state) => ({
+          bookmarks: state.bookmarks.includes(id)
+            ? state.bookmarks
+            : [...state.bookmarks, id]
+        })),
+        
+        removeFromBookmarks: (id) => set((state) => ({
+          bookmarks: state.bookmarks.filter(bId => bId !== id)
+        })),
+        
+        clearHistory: () => set({ readHistory: [] }),
+        
+        // 筛选新闻
+        filterNews: () => {
+          const { news, selectedCategory, sortBy, searchQuery } = get();
+          let filtered = [...news];
+          
+          // 分类筛选
+          if (selectedCategory) {
+            filtered = filtered.filter(item => item.category === selectedCategory);
+          }
+          
+          // 搜索筛选
+          if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(item => 
+              item.title.toLowerCase().includes(query) ||
+              item.summary.toLowerCase().includes(query)
+            );
+          }
+          
+          // 排序
+          filtered.sort((a, b) => {
+            switch (sortBy) {
+              case 'views':
+                return b.views - a.views;
+              case 'likes':
+                return b.likes - a.likes;
+              case 'date':
+              default:
+                return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+            }
+          });
+          
+          set({ filteredNews: filtered });
+        },
+        
+        // 搜索新闻
+        searchNews: (query) => {
+          set({ searchQuery: query });
+          get().filterNews();
+        },
+        
+        // 重置筛选
+        resetFilters: () => {
+          set({ 
+            selectedCategory: '', 
+            sortBy: 'date', 
+            searchQuery: '',
+            filteredNews: get().news 
+          });
+        },
       }),
-      
-      addToBookmarks: (id) => set((state) => ({
-        bookmarks: state.bookmarks.includes(id)
-          ? state.bookmarks
-          : [...state.bookmarks, id]
-      })),
-      
-      removeFromBookmarks: (id) => set((state) => ({
-        bookmarks: state.bookmarks.filter(bId => bId !== id)
-      })),
-      
-      clearHistory: () => set({ readHistory: [] }),
-    }),
+      { name: 'news-store' }
+    ),
     {
       name: 'news-storage',
     }
   )
 );
 
-// 设置相关状态
+// 产品洞察状态管理
+export const useProductInsightsStore = create<ProductInsightsState>()(
+  devtools(
+    (set) => ({
+      // 初始状态
+      products: [],
+      redditDiscussions: [],
+      trendingItems: [],
+      isLoading: false,
+      error: null,
+      
+      // 设置方法
+      setProducts: (products) => set({ products }),
+      setRedditDiscussions: (redditDiscussions) => set({ redditDiscussions }),
+      setTrendingItems: (trendingItems) => set({ trendingItems }),
+      setIsLoading: (isLoading) => set({ isLoading }),
+      setError: (error) => set({ error }),
+    }),
+    { name: 'product-insights-store' }
+  )
+);
+
+// 设置状态接口
 interface SettingsState {
-  notifications: {
-    email: boolean;
-    push: boolean;
-    desktop: boolean;
-  };
-  preferences: {
-    autoRefresh: boolean;
-    refreshInterval: number;
-    compactView: boolean;
-    showImages: boolean;
-  };
+  theme: 'light' | 'dark' | 'system';
+  language: 'zh' | 'en';
+  notifications: boolean;
+  autoRefresh: boolean;
+  refreshInterval: number;
   
-  updateNotifications: (notifications: Partial<SettingsState['notifications']>) => void;
-  updatePreferences: (preferences: Partial<SettingsState['preferences']>) => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setLanguage: (language: 'zh' | 'en') => void;
+  setNotifications: (enabled: boolean) => void;
+  setAutoRefresh: (enabled: boolean) => void;
+  setRefreshInterval: (interval: number) => void;
 }
 
+// 设置状态管理
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
-      notifications: {
-        email: true,
-        push: true,
-        desktop: false,
-      },
-      preferences: {
-        autoRefresh: true,
+    devtools(
+      (set) => ({
+        // 初始状态
+        theme: 'system',
+        language: 'zh',
+        notifications: true,
+        autoRefresh: false,
         refreshInterval: 300000, // 5分钟
-        compactView: false,
-        showImages: true,
-      },
-      
-      updateNotifications: (notifications) => set((state) => ({
-        notifications: { ...state.notifications, ...notifications }
-      })),
-      
-      updatePreferences: (preferences) => set((state) => ({
-        preferences: { ...state.preferences, ...preferences }
-      })),
-    }),
+        
+        // 设置方法
+        setTheme: (theme) => set({ theme }),
+        setLanguage: (language) => set({ language }),
+        setNotifications: (notifications) => set({ notifications }),
+        setAutoRefresh: (autoRefresh) => set({ autoRefresh }),
+        setRefreshInterval: (refreshInterval) => set({ refreshInterval }),
+      }),
+      { name: 'settings-store' }
+    ),
     {
       name: 'settings-storage',
     }

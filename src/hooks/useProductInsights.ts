@@ -1,43 +1,49 @@
 import { useCallback } from 'react';
-import { useAppStore } from '../store';
+import { useProductInsightsStore } from '../store';
 import { newsApi } from '../services/api';
 
 export const useProductInsights = () => {
   const {
-    productInsights,
-    productInsightsLoading,
-    productInsightsError,
-    setProductInsights,
-    setProductInsightsLoading,
-    setProductInsightsError,
-  } = useAppStore();
+    products,
+    redditDiscussions,
+    trendingItems,
+    isLoading,
+    error,
+    setProducts,
+    setRedditDiscussions,
+    setTrendingItems,
+    setIsLoading,
+    setError,
+  } = useProductInsightsStore();
 
   // 获取产品资讯数据
   const fetchProductInsights = useCallback(async () => {
     try {
-      setProductInsightsLoading(true);
-      setProductInsightsError(null);
+      setIsLoading(true);
+      setError(null);
       
       const response = await newsApi.getNews();
       if (response.success) {
-        setProductInsights(response.data);
+        // 假设API返回的数据结构包含这些字段
+        const data = response.data;
+        setProducts(data.new_products || []);
+        setRedditDiscussions(data.reddits || []);
+        setTrendingItems(data.trendings || []);
       } else {
         throw new Error(response.message || '获取新闻数据失败');
       }
     } catch (error: any) {
       console.error('Failed to fetch product insights:', error);
-      setProductInsightsError(error.message || '获取产品资讯数据失败');
+      setError(error.message || '获取产品资讯数据失败');
       
       // 设置空数据结构，避免页面崩溃
-      setProductInsights({
-        new_products: [],
-        reddits: [],
-        trendings: []
-      });
+      setProducts([]);
+      setRedditDiscussions([]);
+      setTrendingItems([]);
     } finally {
-      setProductInsightsLoading(false);
+      setIsLoading(false);
     }
-  }, [setProductInsights, setProductInsightsLoading, setProductInsightsError]);
+  }, [setProducts, setRedditDiscussions, setTrendingItems, setIsLoading, setError]);
 
   // 刷新数据
   const refreshData = useCallback(async () => {
@@ -45,24 +51,24 @@ export const useProductInsights = () => {
   }, [fetchProductInsights]);
 
   // 检查是否有数据
-  const hasData = productInsights && (
-    productInsights.new_products.length > 0 ||
-    productInsights.reddits.length > 0 ||
-    productInsights.trendings.length > 0
-  );
+  const hasData = products.length > 0 || redditDiscussions.length > 0 || trendingItems.length > 0;
 
   // 检查各模块是否有数据
-  const hasNewProducts = productInsights?.new_products && productInsights.new_products.length > 0;
-  const hasReddits = productInsights?.reddits && productInsights.reddits.length > 0;
-  const hasTrendings = productInsights?.trendings && productInsights.trendings.length > 0;
+  const hasNewProducts = products.length > 0;
+  const hasReddits = redditDiscussions.length > 0;
+  const hasTrendings = trendingItems.length > 0;
 
   return {
     // 数据
-    data: productInsights,
+    data: {
+      new_products: products,
+      reddits: redditDiscussions,
+      trendings: trendingItems
+    },
     
     // 状态
-    isLoading: productInsightsLoading,
-    error: productInsightsError,
+    isLoading,
+    error,
     
     // 方法
     fetchProductInsights,

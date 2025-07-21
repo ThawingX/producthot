@@ -230,47 +230,7 @@ export const PAGE_KEYWORDS = {
     '市场需求识别'
   ],
   
-  // 频道页面
-  CHANNELS: {
-    PRODUCTHUNT: [
-      'ProductHunt',
-      'Product Hunt',
-      '产品发现',
-      '新产品推荐',
-      '创业产品',
-      '产品投票'
-    ],
-    HACKERNEWS: [
-      'Hacker News',
-      'HackerNews',
-      '技术新闻',
-      '开发者资讯',
-      '科技讨论',
-      'Show HN'
-    ],
-    GITHUB: [
-      'GitHub',
-      '开源项目',
-      '代码仓库',
-      '开发者工具',
-      'GitHub Trending',
-      '开源软件'
-    ],
-    REDDIT: [
-      'Reddit',
-      '科技讨论',
-      '产品讨论',
-      '技术社区',
-      '用户反馈'
-    ],
-    TECHCRUNCH: [
-      'TechCrunch',
-      '科技新闻',
-      '创业资讯',
-      '投资新闻',
-      '科技公司'
-    ]
-  }
+
 };
 
 // 内容优化建议

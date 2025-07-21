@@ -4,20 +4,12 @@ export interface NewsItem {
   id: number;
   title: string;
   summary: string;
-  link: string;
-  date: string;
+  content: string;
+  publishedAt: string;
+  category: string;
   views: number;
   likes: number;
-}
-
-export interface Channel {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  updateTime: string;
-  articles: NewsItem[];
-  color: string;
-  bgGradient: string;
+  imageUrl?: string;
 }
 
 export type TabType = 'news' | 'analysis';
