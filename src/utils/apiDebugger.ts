@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { EnvironmentUtils } from './environment';
 
 export interface ApiDebugResult {
   url: string;
@@ -186,7 +187,7 @@ export class ApiDebugger {
  * 快速调试当前项目的API端点
  */
 export async function debugProjectApis() {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://35.209.49.134:8030';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || EnvironmentUtils.getApiBaseUrl();
   
   const endpoints = [
     {

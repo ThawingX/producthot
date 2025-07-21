@@ -59,18 +59,18 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center mb-4">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
+            className="flex-shrink-0 mr-3 w-8 h-8 rounded-full"
           />
         )}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
-          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
-            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-gray-800 truncate lg:text-lg">{source.title}</h3>
+          <p className="flex items-center text-xs text-gray-500 lg:text-sm">
+            <Calendar className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -78,39 +78,39 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 
       {/* 产品列表 - 可滚动区域 */}
       <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
-        <div className="space-y-3 pr-2">
+        <div className="pr-2 space-y-3">
           {displayPosts.map((post, index) => (
-            <div key={index} className="border-l-4 border-blue-500 pl-4 py-2">
+            <div key={index} className="py-2 pl-4 border-l-4 border-blue-500">
               <h4 
-                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+                className="mb-1 text-sm font-medium text-gray-800 transition-colors cursor-pointer line-clamp-2 hover:text-blue-600"
                 onClick={() => handleTitleClick(post.url)}
                 title="点击查看详情"
               >
                 {post.title}
               </h4>
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
+              <p className="mb-2 text-xs text-gray-600 line-clamp-2">{post.description}</p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                   <span className="flex items-center">
-                    <Heart className="w-3 h-3 mr-1" />
+                    <Heart className="mr-1 w-3 h-3" />
                     {formatNumber(post.upvotes)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleShare(post.url, index)}
-                    className="inline-flex items-center text-gray-500 hover:text-blue-600 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-gray-500 transition-colors hover:text-blue-600"
                     title={copiedPostId === index ? "已复制链接" : "分享链接"}
                   >
                     {copiedPostId === index ? (
                       <>
-                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <Check className="mr-1 w-3 h-3 text-green-500" />
                         <span className="text-green-500">已复制</span>
                       </>
                     ) : (
                       <>
-                        <Share className="w-3 h-3 mr-1" />
+                        <Share className="mr-1 w-3 h-3" />
                         分享
                       </>
                     )}
@@ -119,10 +119,10 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     href={post.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-blue-600 transition-colors hover:text-blue-800"
                   >
                     查看
-                    <ExternalLink className="w-3 h-3 ml-1" />
+                    <ExternalLink className="ml-1 w-3 h-3" />
                   </a>
                 </div>
               </div>
@@ -132,14 +132,14 @@ const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
-        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
+      <div className="flex-shrink-0 pt-4 mt-4 border-t border-gray-200">
+        <div className="flex justify-between items-center text-xs text-gray-500 lg:text-sm">
           <span className="flex items-center">
-            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <TrendingUp className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.length} 个产品
           </span>
           <span className="flex items-center">
-            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <Users className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总赞数
           </span>
         </div>
@@ -203,18 +203,18 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center mb-4">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
+            className="flex-shrink-0 mr-3 w-8 h-8 rounded-full"
           />
         )}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
-          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
-            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-gray-800 truncate lg:text-lg">{source.title}</h3>
+          <p className="flex items-center text-xs text-gray-500 lg:text-sm">
+            <Calendar className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -222,39 +222,39 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 
       {/* 讨论列表 - 可滚动区域 */}
       <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
-        <div className="space-y-3 pr-2">
+        <div className="pr-2 space-y-3">
           {displayPosts.map((post, index) => (
-            <div key={index} className="border-l-4 border-orange-500 pl-4 py-2">
+            <div key={index} className="py-2 pl-4 border-l-4 border-orange-500">
               <h4 
-                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-orange-600 transition-colors"
+                className="mb-1 text-sm font-medium text-gray-800 transition-colors cursor-pointer line-clamp-2 hover:text-orange-600"
                 onClick={() => handleTitleClick(post.url)}
                 title="点击查看详情"
               >
                 {post.title}
               </h4>
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
+              <p className="mb-2 text-xs text-gray-600 line-clamp-2">{post.description}</p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                   <span className="flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-1" />
+                    <TrendingUp className="mr-1 w-3 h-3" />
                     {formatNumber(post.upvotes)} upvotes
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleShare(post.url, index)}
-                    className="inline-flex items-center text-gray-500 hover:text-orange-600 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-gray-500 transition-colors hover:text-orange-600"
                     title={copiedPostId === index ? "已复制链接" : "分享链接"}
                   >
                     {copiedPostId === index ? (
                       <>
-                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <Check className="mr-1 w-3 h-3 text-green-500" />
                         <span className="text-green-500">已复制</span>
                       </>
                     ) : (
                       <>
-                        <Share className="w-3 h-3 mr-1" />
+                        <Share className="mr-1 w-3 h-3" />
                         分享
                       </>
                     )}
@@ -263,10 +263,10 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     href={post.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-orange-600 hover:text-orange-800 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-orange-600 transition-colors hover:text-orange-800"
                   >
                     查看
-                    <ExternalLink className="w-3 h-3 ml-1" />
+                    <ExternalLink className="ml-1 w-3 h-3" />
                   </a>
                 </div>
               </div>
@@ -276,14 +276,14 @@ const RedditSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
-        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
+      <div className="flex-shrink-0 pt-4 mt-4 border-t border-gray-200">
+        <div className="flex justify-between items-center text-xs text-gray-500 lg:text-sm">
           <span className="flex items-center">
-            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <Users className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.length} 个讨论
           </span>
           <span className="flex items-center">
-            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <TrendingUp className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总热度
           </span>
         </div>
@@ -347,18 +347,18 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 lg:p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 h-[480px] flex flex-col">
       {/* 来源信息 */}
-      <div className="flex items-center mb-4 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center mb-4">
         {source.logo && (
           <img 
             src={source.logo} 
             alt={source.title}
-            className="w-8 h-8 rounded-full mr-3 flex-shrink-0"
+            className="flex-shrink-0 mr-3 w-8 h-8 rounded-full"
           />
         )}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base lg:text-lg font-semibold text-gray-800 truncate">{source.title}</h3>
-          <p className="text-xs lg:text-sm text-gray-500 flex items-center">
-            <Calendar className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-gray-800 truncate lg:text-lg">{source.title}</h3>
+          <p className="flex items-center text-xs text-gray-500 lg:text-sm">
+            <Calendar className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {formatDate(source.update_time)}
           </p>
         </div>
@@ -366,39 +366,39 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 
       {/* 趋势列表 - 可滚动区域 */}
       <div className={`flex-1 ${shouldShowScroll ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400`}>
-        <div className="space-y-3 pr-2">
+        <div className="pr-2 space-y-3">
           {displayPosts.map((post, index) => (
-            <div key={index} className="border-l-4 border-green-500 pl-4 py-2">
+            <div key={index} className="py-2 pl-4 border-l-4 border-green-500">
               <h4 
-                className="font-medium text-gray-800 mb-1 text-sm line-clamp-2 cursor-pointer hover:text-green-600 transition-colors"
+                className="mb-1 text-sm font-medium text-gray-800 transition-colors cursor-pointer line-clamp-2 hover:text-green-600"
                 onClick={() => handleTitleClick(post.url)}
                 title="点击查看详情"
               >
                 {post.title}
               </h4>
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.description}</p>
+              <p className="mb-2 text-xs text-gray-600 line-clamp-2">{post.description}</p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                   <span className="flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-1" />
+                    <TrendingUp className="mr-1 w-3 h-3" />
                     {formatNumber(post.upvotes)} 热度
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleShare(post.url, index)}
-                    className="inline-flex items-center text-gray-500 hover:text-green-600 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-gray-500 transition-colors hover:text-green-600"
                     title={copiedPostId === index ? "已复制链接" : "分享链接"}
                   >
                     {copiedPostId === index ? (
                       <>
-                        <Check className="w-3 h-3 mr-1 text-green-500" />
+                        <Check className="mr-1 w-3 h-3 text-green-500" />
                         <span className="text-green-500">已复制</span>
                       </>
                     ) : (
                       <>
-                        <Share className="w-3 h-3 mr-1" />
+                        <Share className="mr-1 w-3 h-3" />
                         分享
                       </>
                     )}
@@ -407,10 +407,10 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
                     href={post.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-green-600 hover:text-green-800 text-xs font-medium transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-green-600 transition-colors hover:text-green-800"
                   >
                     查看
-                    <ExternalLink className="w-3 h-3 ml-1" />
+                    <ExternalLink className="ml-1 w-3 h-3" />
                   </a>
                 </div>
               </div>
@@ -420,14 +420,14 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
       </div>
 
       {/* 统计信息 */}
-      <div className="mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
-        <div className="flex items-center justify-between text-xs lg:text-sm text-gray-500">
+      <div className="flex-shrink-0 pt-4 mt-4 border-t border-gray-200">
+        <div className="flex justify-between items-center text-xs text-gray-500 lg:text-sm">
           <span className="flex items-center">
-            <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <TrendingUp className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.length} 个趋势
           </span>
           <span className="flex items-center">
-            <Users className="w-3 h-3 lg:w-4 lg:h-4 mr-1 flex-shrink-0" />
+            <Users className="flex-shrink-0 mr-1 w-3 h-3 lg:w-4 lg:h-4" />
             {source.posts.reduce((sum, post) => sum + post.upvotes, 0)} 总热度
           </span>
         </div>
@@ -444,21 +444,21 @@ export const ProductNewsPage: React.FC = () => {
   }, [refreshData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 lg:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 lg:p-6">
+      <div className="mx-auto max-w-7xl">
         {/* 页面标题 */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">产品资讯</h1>
-          <p className="text-gray-600 text-sm lg:text-base mb-4">获取最新的产品发布、讨论和趋势信息</p>
+        <div className="mb-8 text-center">
+          <h1 className="mb-4 text-3xl font-bold text-gray-800 lg:text-4xl">产品资讯</h1>
+          <p className="mb-4 text-sm text-gray-600 lg:text-base">获取最新的产品发布、讨论和趋势信息</p>
           
           {/* 搜索提示 */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
-            <div className="flex items-center justify-center space-x-2 text-blue-700">
+          <div className="p-4 mx-auto max-w-2xl bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex justify-center items-center space-x-2 text-blue-700">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <span className="text-sm font-medium">
-                💡 搜索提示：使用 <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">Ctrl+F</kbd> (Windows) 或 <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">Cmd+F</kbd> (Mac) 在当前页面搜索内容
+                💡 搜索提示：使用 <kbd className="px-2 py-1 font-mono text-xs bg-white rounded border border-blue-300">Ctrl+F</kbd> (Windows) 或 <kbd className="px-2 py-1 font-mono text-xs bg-white rounded border border-blue-300">Cmd+F</kbd> (Mac) 在当前页面搜索内容
               </span>
             </div>
           </div>
@@ -482,7 +482,7 @@ export const ProductNewsPage: React.FC = () => {
 
         {/* Reddit/SaaS 讨论部分 */}
         <SmartSectionRenderer
-          title="💬 Reddit/SaaS 讨论"
+          title="💬 社区需求讨论"
           isLoading={isLoading}
           error={error}
           data={data?.reddits}

@@ -44,7 +44,7 @@ export interface EnvironmentConfig {
 // 开发环境配置
 const developmentConfig: EnvironmentConfig = {
   api: {
-    baseUrl: 'http://35.209.49.134:8030',
+    baseUrl: 'http://api.producthot.top:8030',
     timeout: 15000,
     retryAttempts: 2,
     retryDelay: 1000,

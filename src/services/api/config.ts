@@ -1,20 +1,20 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { config, isDevelopment, isProduction, getCurrentEnvironment } from '../../config/environment';
+import { EnvironmentUtils } from '../../utils/environment';
 
 // API配置 - 基于环境配置
 export const API_CONFIG = {
   BASE_URL: (() => {
-    const envUrl = import.meta.env.VITE_API_BASE_URL || config.api.baseUrl;
+    const envUrl = import.meta.env.VITE_API_BASE_URL || EnvironmentUtils.getApiBaseUrl();
     // 在生产环境中确保使用HTTPS
-    if (isProduction() && envUrl && envUrl.startsWith('http:')) {
+    if (EnvironmentUtils.isProd() && envUrl && envUrl.startsWith('http:')) {
       console.warn('⚠️ 生产环境检测到HTTP API URL，自动转换为HTTPS:', envUrl);
       return envUrl.replace('http:', 'https:');
     }
     return envUrl;
   })(),
-  TIMEOUT: config.api.timeout,
-  RETRY_ATTEMPTS: config.api.retryAttempts,
-  RETRY_DELAY: config.api.retryDelay,
+  TIMEOUT: EnvironmentUtils.getConfig().api.timeout,
+  RETRY_ATTEMPTS: EnvironmentUtils.getConfig().api.retryAttempts,
+  RETRY_DELAY: EnvironmentUtils.getConfig().api.retryDelay,
 };
 
 // 错误处理接口
@@ -116,7 +116,7 @@ apiClient.interceptors.request.use(
     
     // 添加环境标识
     if (config.headers) {
-      config.headers['X-Environment'] = getCurrentEnvironment();
+      config.headers['X-Environment'] = EnvironmentUtils.getCurrentEnv();
     }
     
     // 启用控制台日志记录
@@ -202,7 +202,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       // 在生产环境中可能需要不同的处理方式
-      if (isDevelopment()) {
+      if (EnvironmentUtils.isDev()) {
         console.warn('🔐 Authentication expired - redirecting to login');
       }
       // 可以在这里触发登录页面跳转

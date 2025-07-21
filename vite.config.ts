@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://35.209.49.134:8030',
+          target: env.VITE_API_BASE_URL || 'http://api.producthot.top:8030',
           changeOrigin: true,
           secure: false,
           rewrite: (path) => {
