@@ -458,6 +458,17 @@ export const ProductNewsPage: React.FC = () => {
   return (
     <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 lg:p-6">
       <div className="mx-auto max-w-7xl">
+        {error && (
+          <div className="mb-4 p-3 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800 text-sm flex items-center justify-between">
+            <span>数据同步失败，请刷新尝试</span>
+            <button
+              onClick={refreshData}
+              className="px-2 py-1 rounded-md text-yellow-900 bg-yellow-100 hover:bg-yellow-200 transition"
+            >
+              重试
+            </button>
+          </div>
+        )}
         {/* 欢迎信息 */}
         {false && (
         <div className="p-6 mb-12 rounded-xl border shadow-lg backdrop-blur-sm bg-white/80 border-white/20">

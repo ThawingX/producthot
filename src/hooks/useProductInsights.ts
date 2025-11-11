@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useProductInsightsStore } from '../store';
 import { newsApi } from '../services/api';
+import { defaultNewsFallback } from '../data/defaultNews';
 
 export const useProductInsights = () => {
   const {
@@ -34,12 +35,11 @@ export const useProductInsights = () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch product insights:', error);
-      setError(error.message || '获取产品资讯数据失败');
-      
-      // 设置空数据结构，避免页面崩溃
-      setProducts([]);
-      setRedditDiscussions([]);
-      setTrendingItems([]);
+      // 使用默认数据回退，并提示用户
+      setError('数据同步失败，请刷新尝试');
+      setProducts(defaultNewsFallback.new_products);
+      setRedditDiscussions(defaultNewsFallback.reddits);
+      setTrendingItems(defaultNewsFallback.trendings);
     } finally {
       setIsLoading(false);
     }

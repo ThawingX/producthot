@@ -1,4 +1,4 @@
-import { apiClient } from './config';
+import { apiClient, withRetry } from './config';
 import { mockApiResponse } from '../../data/mockNews';
 
 // 新闻相关接口
@@ -95,11 +95,11 @@ export const newsApi = {
       // 确保URL使用HTTPS
       const url = '/api/news/';
       
-      const response = await apiClient.get(url, { 
+      const response = await withRetry(() => apiClient.get(url, { 
         params: {
           lang: params?.lang || 'zh' // 默认使用中文
         }
-      });
+      }));
       
       console.log('✅ getNews API 响应:', response.data);
       
