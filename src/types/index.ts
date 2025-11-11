@@ -12,4 +12,4 @@ export interface NewsItem {
   imageUrl?: string;
 }
 
-export type TabType = 'news' | 'analysis';
+export type TabType = 'news';

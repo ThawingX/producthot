@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { EmptyState, SmartSectionRenderer } from '../components/common';
 import { useProductInsights } from '../hooks/useProductInsights';
 import { NewsSource } from '../services/api';
-import { ExternalLink, TrendingUp, Calendar, Users, Heart, Share, Check, Brain, Target, Zap } from 'lucide-react';
+import { ExternalLink, TrendingUp, Calendar, Users, Heart, Share, Check } from 'lucide-react';
 
 // 创建一个产品卡片组件，用于显示 NewsSource 中的产品数据
 const ProductSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
@@ -450,7 +449,6 @@ const TrendingSourceCard: React.FC<{ source: NewsSource }> = ({ source }) => {
 };
 
 export const ProductNewsPage: React.FC = () => {
-  const navigate = useNavigate();
   const { data, isLoading, error, hasData, refreshData } = useProductInsights();
 
   useEffect(() => {
@@ -461,6 +459,7 @@ export const ProductNewsPage: React.FC = () => {
     <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 lg:p-6">
       <div className="mx-auto max-w-7xl">
         {/* 欢迎信息 */}
+        {false && (
         <div className="p-6 mb-12 rounded-xl border shadow-lg backdrop-blur-sm bg-white/80 border-white/20">
           <div className="mx-auto max-w-4xl">
             <h2 className="mb-4 text-2xl font-bold text-gray-800 lg:text-3xl">还在为寻找下一个爆款灵感而苦恼？</h2>
@@ -473,7 +472,6 @@ export const ProductNewsPage: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-800">AI驱动的<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">线索识别与拆解工作台</span></h3>
                 <span 
                   className="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
-                  onClick={() => navigate('/clue-analysis')}
                 >
                   查看详情
                   <ExternalLink className="ml-1 w-3 h-3" />
@@ -523,12 +521,44 @@ export const ProductNewsPage: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
         
         {/* 页面标题 */}
         <div className="mb-8 text-center">
           <h1 className="mb-4 text-3xl font-bold text-gray-800 lg:text-4xl">产品灵感发掘</h1>
           <p className="mb-4 text-sm text-gray-600 lg:text-base">提供Product Hunt，Hacker News，开发者自荐，社区讨论，技术趋势等内容</p>
-          
+
+          {/* BIP 标识：权威、真诚、利他，不含营销意味 */}
+          <div className="mx-auto mb-6 max-w-3xl">
+            <div className="flex flex-wrap justify-center gap-2">
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 独立运营</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 开源透明</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 引用来源清晰</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 数据可证</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 人工核验</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 无跟踪广告</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs text-gray-700 bg-white/80 border border-gray-200 rounded-full shadow-sm"><Check className="mr-1 w-3 h-3 text-green-600" /> 社区反馈友好</span>
+            </div>
+          </div>
+
+          {/* 划分说明：为何分为三类 */}
+          <div className="mx-auto mb-8 max-w-4xl text-left">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="p-4 bg-white/80 rounded-lg border border-gray-200">
+                <h3 className="mb-1 text-sm font-semibold text-gray-800">产品发布资讯</h3>
+                <p className="text-xs text-gray-600">聚合官方发布与权威媒体来源（如 Product Hunt、TechCrunch），便于快速浏览新产品与核心信息。</p>
+              </div>
+              <div className="p-4 bg-white/80 rounded-lg border border-gray-200">
+                <h3 className="mb-1 text-sm font-semibold text-gray-800">社区心声社区</h3>
+                <p className="text-xs text-gray-600">呈现用户与开发者的真实讨论与反馈（如 Reddit、Hacker News），帮助理解需求与使用痛点。</p>
+              </div>
+              <div className="p-4 bg-white/80 rounded-lg border border-gray-200">
+                <h3 className="mb-1 text-sm font-semibold text-gray-800">技术洞察需求</h3>
+                <p className="text-xs text-gray-600">跟踪技术趋势与实践分享（如趋势榜、开发者自荐），从技术动向推导潜在产品机会。</p>
+              </div>
+            </div>
+          </div>
+
           {/* 搜索提示 */}
           {/* <div className="p-4 mx-auto max-w-2xl bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex justify-center items-center space-x-2 text-blue-700">

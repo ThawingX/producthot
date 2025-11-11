@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, Bell, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Menu, X } from 'lucide-react';
 import { TabType } from '../../types';
 import logoSvg from '/logo.svg';
 
@@ -38,17 +38,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
                   : 'text-gray-600 hover:bg-white/50'
               }`}
             >
-              产品资讯集合
-            </button>
-            <button
-              onClick={() => navigate('/clue-analysis')}
-              className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 ${
-                activeTab === 'analysis'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:bg-white/50'
-              }`}
-            >
-              线索拆解工作台
+              资讯灵感发掘
             </button>
           </nav>
 
@@ -83,20 +73,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
                     : 'text-gray-600 hover:bg-white/50'
                 }`}
               >
-                产品资讯集合
-              </button>
-              <button
-                onClick={() => {
-                  navigate('/clue-analysis');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`px-4 py-3 rounded-2xl font-medium text-left transition-all duration-300 ${
-                  activeTab === 'analysis'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                    : 'text-gray-600 hover:bg-white/50'
-                }`}
-              >
-                线索拆解工作台
+                资讯灵感发掘
               </button>
             </nav>
             <div className="pt-4 mt-4 border-t border-white/20">

@@ -19,11 +19,4 @@
     <changefreq>daily</changefreq>
   </url>
   
-  <!-- 线索分析页 -->
-  <url>
-    <loc>https://producthot.top/?tab=analysis</loc>
-    <lastmod>2024-07-21T00:00:00+00:00</lastmod>
-    <priority>0.8</priority>
-    <changefreq>weekly</changefreq>
-  </url>
 </urlset>
