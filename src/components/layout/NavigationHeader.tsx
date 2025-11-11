@@ -14,6 +14,19 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen
 }) => {
+  const [isToolsOpen, setIsToolsOpen] = React.useState(false);
+  const toolsRef = React.useRef<HTMLDivElement | null>(null);
+
+  // 点击外部关闭下拉
+  React.useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
+        setIsToolsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
   return (
     <header className="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-xl liquid-glass bg-white/80 border-white/20">
       <div className="px-6 py-2 mx-auto max-w-7xl">
@@ -34,6 +47,32 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             <button className="p-2 rounded-xl bg-white/50 hover:bg-white/70 transition-all duration-300">
               <Bell className="w-5 h-5 text-gray-600" />
             </button>
+
+            {/* 工具资源下拉 */}
+            <div
+              className="relative"
+              ref={toolsRef}
+            >
+              <button
+                onClick={() => setIsToolsOpen(!isToolsOpen)}
+                className="px-3 py-2 rounded-xl bg-white/50 hover:bg-white/70 text-gray-700 text-sm font-medium transition-all duration-300"
+              >
+                工具资源
+              </button>
+              {isToolsOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50">
+                  <a
+                    href="https://landing.x-pilot.social"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 hover:bg-gray-50"
+                  >
+                    <div className="text-sm font-medium text-gray-800">X-Pilot 推特自动化增长/监控工具</div>
+                    <div className="mt-0.5 text-xs text-gray-500">landing.x-pilot.social</div>
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -54,6 +93,14 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
                 <Bell className="mr-2 w-5 h-5 text-gray-600" />
                 通知
               </button>
+              <a
+                href="https://landing.x-pilot.social"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 w-full inline-flex items-center justify-center p-2.5 rounded-xl bg-white/50 hover:bg-white/70 transition-all duration-300 text-sm text-gray-700"
+              >
+                X-Pilot 推特自动化增长/监控工具
+              </a>
             </div>
           </div>
         )}

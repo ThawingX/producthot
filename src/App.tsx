@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { NavigationHeader } from './components/layout/NavigationHeader';
 import { ProductNewsPage } from './pages/ProductNewsPage';
-import { EnvironmentBadge, EnvironmentPanel } from './components/EnvironmentBadge';
+import { EnvironmentPanel } from './components/EnvironmentBadge';
 import { TabType } from './types';
 
 function App() {
@@ -25,8 +25,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
-      {/* 环境信息显示 */}
-      <EnvironmentBadge />
+      {/* 环境信息显示（保留面板，移除右上角Badge） */}
       <EnvironmentPanel />
     </div>
   );

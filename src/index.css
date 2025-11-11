@@ -337,7 +337,7 @@ code {
   -webkit-backdrop-filter: blur(20px) saturate(180%) contrast(120%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .liquid-glass::before {
